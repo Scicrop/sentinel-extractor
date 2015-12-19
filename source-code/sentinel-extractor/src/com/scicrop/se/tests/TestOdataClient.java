@@ -9,15 +9,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
@@ -29,8 +28,15 @@ import org.apache.abdera.protocol.client.AbderaClient;
 import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.olingo.odata2.api.commons.HttpStatusCodes;
+import org.apache.olingo.odata2.api.edm.Edm;
+import org.apache.olingo.odata2.api.edm.EdmEntityContainer;
+import org.apache.olingo.odata2.api.edm.EdmEntitySet;
 import org.apache.olingo.odata2.api.edm.EdmException;
+import org.apache.olingo.odata2.api.ep.EntityProvider;
 import org.apache.olingo.odata2.api.ep.EntityProviderException;
+import org.apache.olingo.odata2.api.ep.EntityProviderReadProperties;
+import org.apache.olingo.odata2.api.ep.entry.ODataEntry;
+import org.apache.olingo.odata2.api.exception.ODataException;
 import org.junit.Test;
 
 import com.scicrop.se.http.SeHttpAuthenticator;
@@ -62,18 +68,6 @@ public class TestOdataClient {
 	public void testAbdera() throws IOException {
 		//	Authenticator.setDefault(new SeHttpAuthenticator("guest", "guest"));
 
-		try {
-			getEdm();
-		} catch (EntityProviderException | EdmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (KeyManagementException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		Abdera abdera = new Abdera();
 
@@ -100,8 +94,22 @@ public class TestOdataClient {
 			List<Entry> entries = feed.getEntries();
 			for (Entry entry : entries) {
 				List<Link> links = entry.getLinks();
-				String url = "https://scihub.copernicus.eu/dhus/odata/v1/Products('"+entry.getId().toString()+"')?platformname=Sentinel-2";
-				System.out.println("==== "+url);
+				// String url = "https://scihub.copernicus.eu/dhus/odata/v1/Products('"+entry.getId().toString()+"')?platformname=Sentinel-2";
+				try {
+					getEdm(entry.getId().toString());
+				} catch (EntityProviderException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EdmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (KeyManagementException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				//				try {
 				//					//getOdataProduct(url);
 				//				} catch (EntityProviderException | EdmException e) {
@@ -119,52 +127,45 @@ public class TestOdataClient {
 
 	}
 
-	@Test
-	public void getEdm() throws IOException, EntityProviderException, EdmException, KeyManagementException, NoSuchAlgorithmException {
+	//@Test
+	public void getEdm(String id) throws IOException, EntityProviderException, EdmException, KeyManagementException, NoSuchAlgorithmException {
 
-		//Authenticator.setDefault(new SeHttpAuthenticator("guest", "guest"));
-
-		//URL url=new URL("https://scihub.copernicus.eu/dhus/odata/v1/$metadata?platformname=Sentinel-2");
 		
 		InputStream content = execute("https://scihub.copernicus.eu/dhus/odata/v1/$metadata", APPLICATION_XML, HTTP_METHOD_GET);
-		//Edm edm =  EntityProvider.readMetadata(content, false);
 
-//		HttpURLConnection conn=(HttpURLConnection) url.openConnection();
-//
-//
-//		//         long completeFileSize = conn.getContentLength();
-//		//
-//		//         System.out.println("===> "+completeFileSize);
-//		//         
-//		//         java.io.BufferedInputStream in = new java.io.BufferedInputStream(conn.getInputStream());
-//		//         java.io.FileOutputStream fos = new java.io.FileOutputStream("/tmp/package.zip");
-//		//         java.io.BufferedOutputStream bout = new BufferedOutputStream(fos, 1024);
-//		//         byte[] data = new byte[1024];
-//		//         long downloadedFileSize = 0;
-//		//         int x = 0;
-//		//         while ((x = in.read(data, 0, 1024)) >= 0) {
-//		//             downloadedFileSize += x;
-//		//
-//		//
-//		//             bout.write(data, 0, x);
-//		//             System.out.println(downloadedFileSize);
-//		//         }
-//		//         bout.close();
-//		//         in.close();
-//
-//
-//
-//		conn.setRequestMethod("GET");
-//		conn.setRequestProperty(HttpHeaders.ACCEPT,HttpContentType.APPLICATION_XML);
-//		conn.connect();
-//		InputStream content=conn.getInputStream();
-//		Edm edm = EntityProvider.readMetadata(content, false);
-		//List<EdmEntitySet> eSets = edm.getEntitySets();
-		//System.out.println("---- "+eSets.size());
+		Edm edm = EntityProvider.readMetadata(content, false);
+		List<EdmEntitySet> eSets = edm.getEntitySets();
+		System.out.println("---- "+eSets.size());
 
-
-
-
+		ODataEntry entry = null;
+		try {
+			entry = readEntry(edm, "https://scihub.copernicus.eu/dhus/odata/v1", APPLICATION_XML, "Products", id, "?platformname=Sentinel-2");
+		} catch (ODataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Map<String, Object> propMap = entry.getProperties();
+		
+		Set<String> propMapKeySet = propMap.keySet();
+		
+		Iterator<String> iter = propMapKeySet.iterator();
+		System.out.println("=========================================");
+		while (iter.hasNext()) {
+			System.out.println(iter.next());
+		}
+		
+		
+		
+		HashMap<String, Object> checksum = (HashMap<String, Object>)propMap.get("Checksum"); 
+		
+		System.out.println("Checksum: "+checksum.get("Value"));
+		
+//		Collection<Object> propMapValues = propMap.values();
+//		Iterator<Object> iter = propMapValues.iterator();
+//		
+		
+		
 	}
 
 
@@ -243,6 +244,43 @@ public class TestOdataClient {
 		return connection;
 	}
 
+	 public ODataEntry readEntry(Edm edm, String serviceUri, String contentType, String entitySetName, String keyValue, String params)
+		      throws IOException, ODataException {
+		    // working with the default entity container
+		    EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();
+		    // create absolute uri based on service uri, entity set name and key property value
+		    String absolutUri = createUri(serviceUri, entitySetName, keyValue, params);
+
+		    InputStream content = null;
+			try {
+				content = execute(absolutUri, contentType, HTTP_METHOD_GET);
+			} catch (KeyManagementException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		   
+		    
+		    return EntityProvider.readEntry(contentType,
+		        entityContainer.getEntitySet(entitySetName),
+		        content,
+		        EntityProviderReadProperties.init().build());
+	 }
+	 
+	 private String createUri(String serviceUri, String entitySetName, String id, String params) {
+		    final StringBuilder absolutUri = new StringBuilder(serviceUri).append("/").append(entitySetName);
+		    if(id != null) {
+		      absolutUri.append("('").append(id).append("')");
+		    }
+		    if(params != null) {
+			      absolutUri.append(params);
+			}
+		    return absolutUri.toString();
+		  }
+	
 	private HttpStatusCodes checkStatus(HttpURLConnection connection) throws IOException {
 		HttpStatusCodes httpStatusCode = HttpStatusCodes.fromStatusCode(connection.getResponseCode());
 		if (400 <= httpStatusCode.getStatusCode() && httpStatusCode.getStatusCode() <= 599) {
