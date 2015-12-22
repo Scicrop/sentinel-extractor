@@ -28,7 +28,7 @@ public class Launch {
 		String password = keyboard.nextLine();
 		
 		System.out.println("1) Open Search Query ");
-		System.out.println("2) Open Data Query ");
+		System.out.println("2) Open Data Query (by UUID)");
 		String searchType = keyboard.nextLine();
 		
 		switch (searchType) {
