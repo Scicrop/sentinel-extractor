@@ -118,9 +118,7 @@ public class OpenDataHelper {
 			try {
 				//content = Commons.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);
 				//https://scihub.copernicus.eu/dhus/odata/v1/Products?$filter=Name%20eq%20%27S1A_IW_GRDH_1SDV_20151221T164750_20151221T164815_009143_00D274_014F%27
-				
-				System.out.println("================ "+serviceUri + entitySetName + "('"+keyValue+"')" + params);
-				
+								
 				content = Commons.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);
 				
 			} catch (SentinelHttpConnectionException e) {
