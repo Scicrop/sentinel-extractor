@@ -1,5 +1,6 @@
 package com.scicrop.se.runtime;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -21,11 +22,29 @@ public class Launch {
 
 	public static void main(String[] args) {
 		
+		
+		System.out.println("\n\nSentinel Extractor 0.0.1\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
+		
 		Scanner keyboard = new Scanner(System.in);
 		System.out.println("User: ");
 		String user = keyboard.nextLine();
 		System.out.println("Password: ");
 		String password = keyboard.nextLine();
+		
+		System.out.println("Output folder: ");
+		String outputFolder = keyboard.nextLine();
+		
+		File oFolder = new File(outputFolder);
+		if(null == oFolder || !oFolder.exists() || !oFolder.isDirectory()) {
+			System.err.println(outputFolder + " is not a valid output folder.");
+			System.exit(1);
+		}else{
+			if(outputFolder.charAt(outputFolder.length()-1) != '/'){
+				outputFolder = outputFolder + "/";
+				System.out.println("Normalizing output folder.");
+			}
+			System.out.println("Checked Output folder: "+outputFolder+"\n\n");
+		}
 		
 		System.out.println("1) Open Search Query ");
 		System.out.println("2) Open Data Query (by UUID)");
@@ -44,7 +63,7 @@ public class Launch {
 				List<Entry> entries = feed.getEntries();
 				for (Entry entry : entries) {
 					try {
-						OpenDataHelper.getInstance().getEdmByUUID(entry.getId().toString(), user, password);
+						OpenDataHelper.getInstance().getEdmByUUID(entry.getId().toString(), user, password, outputFolder);
 					} catch (SentinelRuntimeException e) {
 						e.printStackTrace();
 					}
@@ -63,7 +82,7 @@ public class Launch {
 			
 			
 			try {
-				OpenDataHelper.getInstance().getEdmByUUID(uuid, user, password);
+				OpenDataHelper.getInstance().getEdmByUUID(uuid, user, password, outputFolder);
 			} catch (SentinelRuntimeException e) {
 				e.printStackTrace();
 			}

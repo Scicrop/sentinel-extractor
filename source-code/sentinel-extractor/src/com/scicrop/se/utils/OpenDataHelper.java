@@ -32,7 +32,7 @@ public class OpenDataHelper {
 	
 	
 	
-	public void getEdmByUUID(String id, String user, String password) throws SentinelRuntimeException {
+	public void getEdmByUUID(String id, String user, String password, String outputFolder) throws SentinelRuntimeException {
 
 		
 		InputStream content = null;
@@ -42,7 +42,9 @@ public class OpenDataHelper {
 		String contentType = null;
 		HashMap<String, Object> checksum = null;  
 		String fileName = null;
-		byte[] downloadBinary = null;
+		byte[] downloadBinaryChecksum = null;
+		String hexChecksum = null;
+		
 		
 		try {
 			content = Commons.getInstance().execute(Constants.COPERNICUS_ODATA_METALINK, Constants.APPLICATION_XML, Constants.HTTP_METHOD_GET, user, password);
@@ -65,8 +67,10 @@ public class OpenDataHelper {
 			
 			fileName = propMap.get("Name")+".zip";
 			
+			hexChecksum = checksum.get("Value").toString();
+			
 			System.out.println("Id: "+id);
-			System.out.println("Checksum: "+checksum.get("Value"));
+			System.out.println("Checksum: "+hexChecksum);
 			System.out.println("Filename: "+fileName);
 			System.out.println("ContentLength: "+contentLength);
 			System.out.println("ContentType: "+contentType);
@@ -89,15 +93,15 @@ public class OpenDataHelper {
 		
 		
 		
-		
+		byte[] byteArrayChecksum = Commons.getInstance().hexStringToByteArray(hexChecksum);
 			
 		
 		
 		
 		
-		while(downloadBinary == null || downloadBinary.length < contentLength){
+		while(downloadBinaryChecksum == null || downloadBinaryChecksum.equals(byteArrayChecksum)){
 			
-			downloadBinary = Commons.getInstance().getByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", "/tmp/"+fileName, contentLength, contentType, user, password);
+			downloadBinaryChecksum = Commons.getInstance().getByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password);
 			System.out.println("\n\nRetrying...\n\n");
 		}
 

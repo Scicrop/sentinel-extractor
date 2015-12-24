@@ -1,7 +1,9 @@
 package com.scicrop.se.utils;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,6 +14,11 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -162,10 +169,47 @@ public class Commons {
 			if(connection != null) connection.disconnect();
 		}
 
-		return retBuf;
+		
+		
+		
+		return retBuf = md5CheksumFromFilePath(outputFileNamePath);
 
 	}
 
+	
+	public byte[] md5CheksumFromFilePath(String source){
+		
+		byte[] byteArrayChecksum = null;
+		MessageDigest md = null;
+		InputStream is = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			is = new FileInputStream(source);
+	        
+	        byte[] dataBytes = new byte[1024];
+	     
+	        int nread = 0; 
+	        while ((nread = is.read(dataBytes)) != -1) {
+	          md.update(dataBytes, 0, nread);
+	        };
+	        byteArrayChecksum = md.digest();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally{
+			if(is != null)
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+        
+		
+		return byteArrayChecksum;
+	}
+	
 
 	private void formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {
 		DecimalFormat dfa = new DecimalFormat("000.0");
@@ -265,6 +309,14 @@ public class Commons {
 		return content;
 	}
 
-	
+	public byte[] hexStringToByteArray(String s) {
+	    int len = s.length();
+	    byte[] data = new byte[len / 2];
+	    for (int i = 0; i < len; i += 2) {
+	        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+	                             + Character.digit(s.charAt(i+1), 16));
+	    }
+	    return data;
+	}
 
 }
