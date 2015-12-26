@@ -44,9 +44,7 @@ public class OpenSearchHelper {
 		ClientResponse resp = client.get(clientUrl);
 		if (resp.getType() == ResponseType.SUCCESS) {
 			Document<Feed> doc = resp.getDocument();
-			ret = doc.getRoot();
-			
-
+			ret = doc.getRoot();			
 		} else {
 			System.out.println("error");
 		}	

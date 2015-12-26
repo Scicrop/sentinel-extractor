@@ -1,21 +1,23 @@
 package com.scicrop.se.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.olingo.odata2.api.edm.Edm;
 import org.apache.olingo.odata2.api.edm.EdmEntityContainer;
-import org.apache.olingo.odata2.api.edm.EdmException;
 import org.apache.olingo.odata2.api.ep.EntityProvider;
 import org.apache.olingo.odata2.api.ep.EntityProviderException;
 import org.apache.olingo.odata2.api.ep.EntityProviderReadProperties;
 import org.apache.olingo.odata2.api.ep.entry.ODataEntry;
 import org.apache.olingo.odata2.api.exception.ODataException;
+
+import com.scicrop.se.dataobjects.EntryFileProperty;
 
 public class OpenDataHelper {
 	
@@ -37,14 +39,13 @@ public class OpenDataHelper {
 		
 		InputStream content = null;
 		Edm edm = null;
-		ODataEntry entry = null;
 		Long contentLength = 0l;
 		String contentType = null;
 		HashMap<String, Object> checksum = null;  
 		String fileName = null;
 		byte[] downloadBinaryChecksum = null;
 		String hexChecksum = null;
-		
+		ODataEntry entry = null;
 		
 		try {
 			content = Commons.getInstance().execute(Constants.COPERNICUS_ODATA_METALINK, Constants.APPLICATION_XML, Constants.HTTP_METHOD_GET, user, password);
@@ -54,12 +55,15 @@ public class OpenDataHelper {
 			entry = readEntry(edm, Constants.COPERNICUS_ODATA_ROOT, Constants.APPLICATION_XML, "Products", id, "?platformname=Sentinel-2", user, password);
 			System.out.println("Open Data Entry collected.");
 			
+			
+			
 			Map<String, Object> propMap = entry.getProperties();
 			
 			Set<String> propMapKeySet = propMap.keySet();
 			
 			System.out.println("\n\n=========================================");
 
+			
 			contentLength = Long.parseLong(propMap.get("ContentLength").toString());
 			contentType = propMap.get("ContentType").toString();
 			
@@ -77,8 +81,7 @@ public class OpenDataHelper {
 			
 			System.out.println("=========================================\n\n");
 			
-			
-			
+			Commons.getInstance().writeProp(new EntryFileProperty(fileName, hexChecksum, id, contentLength), outputFolder);
 			
 		} catch (SentinelHttpConnectionException e) {
 			e.printStackTrace();
@@ -97,18 +100,23 @@ public class OpenDataHelper {
 			
 		
 		
+		int tries = 1;
 		
-		
-		while(downloadBinaryChecksum == null || downloadBinaryChecksum.equals(byteArrayChecksum)){
+		while(downloadBinaryChecksum == null ||  !Arrays.equals(downloadBinaryChecksum, byteArrayChecksum)){
+			System.out.println("\n\nTry: "+tries+" (please wait 30s)");
 			
-			downloadBinaryChecksum = Commons.getInstance().getByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password);
-			System.out.println("\n\nRetrying...\n\n");
+			downloadBinaryChecksum = Commons.getInstance().getMd5ByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password);
+			
+			try {
+				Thread.sleep(30000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			tries ++;
 		}
 
 		
-		
-		
-		
+		System.out.println("Filename: "+fileName+ " downloaded and checked "+hexChecksum);
 		
 		
 		
@@ -119,21 +127,29 @@ public class OpenDataHelper {
 		    EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();
 
 		    InputStream content = null;
-			try {
+		    InputStream copy = null;
+		    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		    ODataEntry ode = null;
+		    try {
 				//content = Commons.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);
 				//https://scihub.copernicus.eu/dhus/odata/v1/Products?$filter=Name%20eq%20%27S1A_IW_GRDH_1SDV_20151221T164750_20151221T164815_009143_00D274_014F%27
 								
 				content = Commons.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);
+				ode = EntityProvider.readEntry(contentType, entityContainer.getEntitySet(entitySetName), content, EntityProviderReadProperties.init().build());
+
+				
+				
 				
 			} catch (SentinelHttpConnectionException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+
 			
-		    return EntityProvider.readEntry(contentType, entityContainer.getEntitySet(entitySetName), content, EntityProviderReadProperties.init().build());
+			
+		    return ode;
 	 }
 	
-	
+		
 }
 
 

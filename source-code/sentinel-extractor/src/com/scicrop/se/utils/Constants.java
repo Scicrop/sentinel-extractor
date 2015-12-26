@@ -19,6 +19,7 @@ public class Constants {
 	public static final String COPERNICUS_ODATA_METALINK = "https://scihub.copernicus.eu/dhus/odata/v1/$metadata";
 	public static final String COPERNICUS_ODATA_ROOT = "https://scihub.copernicus.eu/dhus/odata/v1/";
 
+	public static final int BUFFER_SIZE = 8192;
 
 	public static String user = "guest";
 	public static String password = "guest";
