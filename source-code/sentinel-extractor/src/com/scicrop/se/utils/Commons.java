@@ -24,6 +24,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.olingo.odata2.api.commons.HttpStatusCodes;
 
+import com.scicrop.se.dataobjects.ArgumentsHistory;
 import com.scicrop.se.dataobjects.EntryFileProperty;
 import com.scicrop.se.http.SeHttpAuthenticator;
 import com.scicrop.se.threads.ThreadChecker;
@@ -40,7 +41,7 @@ public class Commons {
 	}
 
 
-	public void writeProp(EntryFileProperty entryFileData, String folder){
+	public void writeEntryFilePropertyFile(EntryFileProperty entryFileData, String folder){
 
 
 
@@ -83,9 +84,9 @@ public class Commons {
 	}
 
 	public EntryFileProperty readEntryPropertyFile(File source){
-		
+
 		EntryFileProperty ret = null;
-		
+
 		Properties prop = new Properties();
 		InputStream input = null;
 
@@ -94,7 +95,7 @@ public class Commons {
 			input = new FileInputStream(source);
 
 			prop.load(input);
-			
+
 			ret = new EntryFileProperty(prop.getProperty("name"), prop.getProperty("checksum"), prop.getProperty("uuid"), Long.parseLong(prop.getProperty("size")));
 
 
@@ -110,9 +111,9 @@ public class Commons {
 			}
 		}
 		return ret;
-	  }
-	
-	
+	}
+
+
 
 	public String getStringFromInputStream(InputStream is) {
 
@@ -143,11 +144,11 @@ public class Commons {
 
 	}
 
-	public byte[] getMd5ByteArrayFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password) throws SentinelRuntimeException{
+	public EntryFileProperty getMd5ByteArrayFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password) throws SentinelRuntimeException{
 
 		ThreadChecker tChecker = new ThreadChecker(outputFileNamePath, completeFileSize);
 
-		byte[] retBuf = null;
+		EntryFileProperty ret = null;
 		URL url = null;
 		HttpURLConnection connection = null;
 		FileOutputStream fos = null;
@@ -184,7 +185,7 @@ public class Commons {
 						if(!tChecker.isAlive()) tChecker.start();
 					} catch (SentinelHttpConnectionException e) {
 						System.err.println("====> "+e.getMessage());
-						return retBuf;
+						return null;
 					}
 
 					long contentLength = connection.getContentLength();
@@ -208,17 +209,19 @@ public class Commons {
 					}
 
 
+				}else{
+					System.out.println("File already downloaded.");
 				}
 			}else{
 
-
+				System.out.println("Starting download.");
 				connection.connect();
 				try {
 					checkStatus(connection);
 					if(!tChecker.isAlive()) tChecker.start();
 				} catch (SentinelHttpConnectionException e) {
 					System.err.println(e.getMessage());
-					return retBuf;
+					return null;
 				}
 
 				in = connection.getInputStream();
@@ -269,14 +272,14 @@ public class Commons {
 			if(randomAccessfile != null) try { randomAccessfile.close(); } catch (IOException e) { e.printStackTrace(); } 
 
 			if(connection != null) connection.disconnect();
-			
+
 			if(tChecker.isAlive()) tChecker.forceStop();
 		}
 
 
+		ret = new EntryFileProperty(outputFileNamePath, bytesToHex(md5CheksumFromFilePath(outputFileNamePath)), null, downloadedFileSize);
 
-
-		return retBuf = md5CheksumFromFilePath(outputFileNamePath);
+		return ret;
 
 	}
 
@@ -287,12 +290,14 @@ public class Commons {
 
 	public byte[] md5CheksumFromFilePath(String source){
 
+		File fSource = new File(source);
+		long size = fSource.length();
 		byte[] byteArrayChecksum = null;
 		MessageDigest md = null;
 		InputStream is = null;
 		try {
 			md = MessageDigest.getInstance("MD5");
-			is = new FileInputStream(source);
+			is = new FileInputStream(fSource);
 
 			byte[] dataBytes = new byte[1024];
 
@@ -314,6 +319,7 @@ public class Commons {
 				}
 		}
 
+		System.out.println("MD5 checksum: "+bytesToHex(byteArrayChecksum) + " ["+size+"]");
 
 		return byteArrayChecksum;
 	}
@@ -326,7 +332,7 @@ public class Commons {
 		String formatedProgress;
 		currentProgress = ((((double)downloadedFileSize) * 100) / ((double)completeFileSize));
 		formatedProgress = dfa.format(currentProgress)+"% "+dfb.format(downloadedFileSize) + " bytes";
-		System.out.println(formatedProgress);
+		System.out.print(formatedProgress+"\r");
 	}
 
 
@@ -439,6 +445,95 @@ public class Commons {
 			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 		}
 		return new String(hexChars);
+	}
+
+
+	public void saveArgumentsHistory(String user, String outputFolder, String clientUrl, ArgumentsHistory oldAhistory) {
+
+		try {
+			if(oldAhistory != null){
+
+				if(user == null || user.equals("")) user = oldAhistory.getUser();
+				if(outputFolder == null || outputFolder.equals("")) user = oldAhistory.getOutputFolder();
+				if(clientUrl == null || clientUrl.equals("")) clientUrl = oldAhistory.getClientUrl();
+
+			}
+			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, clientUrl);
+			writeArgumentsHistoryPropertyFile(aHistory);
+		} catch (NullPointerException e) {
+			System.out.println("Impossible to write ArgumentsHistory property file.");
+		}
+		
+		
+	}
+
+
+	private void writeArgumentsHistoryPropertyFile(ArgumentsHistory aHistory) {
+		String userDir = System.getProperty("user.dir") + "/";
+		Properties prop = new Properties();
+		OutputStream output = null;
+
+		try {
+
+			String filePath = userDir + ".ahistory" + ".properties";
+
+			File propFile = new File(filePath);
+
+			if(propFile.exists()) propFile.delete();
+			output = new FileOutputStream(filePath);
+
+			// set the properties value
+			prop.setProperty("user", aHistory.getUser());
+			prop.setProperty("outputfolder", aHistory.getOutputFolder());
+			prop.setProperty("clienturl", aHistory.getClientUrl());
+
+			prop.store(output, null);
+
+
+		} catch (IOException io) {
+			io.printStackTrace();
+		} finally {
+			if (output != null) {
+				try {
+					output.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+	}
+
+
+	public ArgumentsHistory readArgumentsHistoryPropertyFile() {
+		ArgumentsHistory ret = null;
+		String userDir = System.getProperty("user.dir") + "/";
+		Properties prop = new Properties();
+		InputStream input = null;
+
+		try {
+			String filePath = userDir + ".ahistory" + ".properties";
+			input = new FileInputStream(filePath);
+
+			prop.load(input);
+
+			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("clienturl"));
+
+
+		} catch (FileNotFoundException ex) {
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return ret;
 	}
 
 }
