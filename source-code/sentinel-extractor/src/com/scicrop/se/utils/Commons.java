@@ -453,15 +453,20 @@ public class Commons {
 		try {
 			if(oldAhistory != null){
 
-				if(user == null || user.equals("")) user = oldAhistory.getUser();
-				if(outputFolder == null || outputFolder.equals("")) user = oldAhistory.getOutputFolder();
-				if(clientUrl == null || clientUrl.equals("")) clientUrl = oldAhistory.getClientUrl();
+				if(user == null) user = oldAhistory.getUser();
+				if(outputFolder == null) outputFolder = oldAhistory.getOutputFolder();
+				if(clientUrl == null) clientUrl = oldAhistory.getClientUrl();
 
+			}else{
+				if(user == null) user = "";
+				if(outputFolder == null) outputFolder = "";
+				if(clientUrl == null) clientUrl = "";
 			}
 			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, clientUrl);
 			writeArgumentsHistoryPropertyFile(aHistory);
 		} catch (NullPointerException e) {
 			System.out.println("Impossible to write ArgumentsHistory property file.");
+			e.printStackTrace();
 		}
 		
 		

@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.xml.namespace.QName;
+
+import org.apache.abdera.model.Element;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 
@@ -22,7 +25,7 @@ public class Launch {
 	public static void main(String[] args) {
 
 
-		System.out.println("\n\nSentinel Extractor 0.0.9\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
+		System.out.println("\n\nSentinel Extractor 0.1.0\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
 		
 		ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile();
 		
@@ -84,6 +87,20 @@ public class Launch {
 				System.out.println("Processing ...");
 				feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, user, password);
 				System.out.println("Open Search Feed collected.");
+				
+				List<Element> l = feed.getExtensions();
+				for (Element e : l) {
+					//System.out.println(e.toString() + " " +e.getText());
+					QName q = e.getQName();
+					System.out.println(q.getNamespaceURI() + " - "+q.getLocalPart()+" - "+q.getPrefix());
+				}
+				
+				
+				QName nq = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
+				String tr = feed.getExtension(nq).getText();
+				
+				System.out.println("================= "+tr);
+				
 				List<Entry> entries = feed.getEntries();
 				System.out.println("Open Search Feed found "+entries.size()+" entries");
 				for (Entry entry : entries) {

@@ -21,7 +21,7 @@ public class ThreadChecker extends Thread {
 
 	public void forceStop(){
 		forceStop = true;
-		System.out.println("ThreadChecker status:    FORCE STOP       ");
+		System.out.println("ThreadChecker status:    FORCE STOP                       ");
 	}
 
 	public void run(){
