@@ -22,7 +22,7 @@ public class OpenSearchHelper {
 		return INSTANCE;
 	}
 	
-	public Feed getFeed(String host, String clientUrl, String user, String password) throws IOException {
+	public Feed getFeed(String host, String clientUrl, String sentinel, String compl, String user, String password) throws IOException {
 
 
 		Abdera abdera = new Abdera();
@@ -41,7 +41,7 @@ public class OpenSearchHelper {
 		
 		//https://scihub.copernicus.eu/dhus/search?q=footprint:%22Intersects(POLYGON((-4.53%2029.85,26.75%2029.85,26.75%2046.80,-4.53%2046.80,-4.53%2029.85)))%22&platformname=Sentinel-2
 		
-		ClientResponse resp = client.get(clientUrl);
+		ClientResponse resp = client.get(clientUrl+"&platformname=Sentinel-"+sentinel+compl);
 		if (resp.getType() == ResponseType.SUCCESS) {
 			Document<Feed> doc = resp.getDocument();
 			ret = doc.getRoot();			

@@ -448,7 +448,7 @@ public class Commons {
 	}
 
 
-	public void saveArgumentsHistory(String user, String outputFolder, String clientUrl, ArgumentsHistory oldAhistory) {
+	public void saveArgumentsHistory(String user, String outputFolder, String clientUrl, String sentinel, ArgumentsHistory oldAhistory) {
 
 		try {
 			if(oldAhistory != null){
@@ -456,13 +456,15 @@ public class Commons {
 				if(user == null) user = oldAhistory.getUser();
 				if(outputFolder == null) outputFolder = oldAhistory.getOutputFolder();
 				if(clientUrl == null) clientUrl = oldAhistory.getClientUrl();
+				if(sentinel == null) sentinel = oldAhistory.getSentinel();
 
 			}else{
 				if(user == null) user = "";
 				if(outputFolder == null) outputFolder = "";
 				if(clientUrl == null) clientUrl = "";
+				if(sentinel == null) sentinel = "";
 			}
-			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, clientUrl);
+			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl);
 			writeArgumentsHistoryPropertyFile(aHistory);
 		} catch (NullPointerException e) {
 			System.out.println("Impossible to write ArgumentsHistory property file.");
@@ -491,6 +493,7 @@ public class Commons {
 			prop.setProperty("user", aHistory.getUser());
 			prop.setProperty("outputfolder", aHistory.getOutputFolder());
 			prop.setProperty("clienturl", aHistory.getClientUrl());
+			prop.setProperty("sentinel", aHistory.getSentinel());
 
 			prop.store(output, null);
 
@@ -522,7 +525,7 @@ public class Commons {
 
 			prop.load(input);
 
-			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("clienturl"));
+			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("sentinel"), prop.getProperty("clienturl"));
 
 
 		} catch (FileNotFoundException ex) {

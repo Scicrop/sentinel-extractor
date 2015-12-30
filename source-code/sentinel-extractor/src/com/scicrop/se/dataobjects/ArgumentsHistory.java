@@ -5,15 +5,31 @@ public class ArgumentsHistory {
 	private String user = null;
 	private String outputFolder = null;
 	private String clientUrl = null;
+	private String sentinel = null;
 	
 	
-	
-	public ArgumentsHistory(String user, String outputFolder, String clientUrl) {
+	public ArgumentsHistory(String user, String outputFolder, String sentinel, String clientUrl) {
 		super();
 		this.user = user;
 		this.outputFolder = outputFolder;
 		this.clientUrl = clientUrl;
+		this.sentinel = sentinel;
 	}
+	
+	
+	
+	public String getSentinel() {
+		return sentinel;
+	}
+
+
+
+	public void setSentinel(String sentinel) {
+		this.sentinel = sentinel;
+	}
+
+
+
 	public String getUser() {
 		return user;
 	}

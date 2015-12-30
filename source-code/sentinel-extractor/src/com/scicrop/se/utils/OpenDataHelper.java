@@ -34,7 +34,7 @@ public class OpenDataHelper {
 
 
 
-	public void getEdmByUUID(String id, String user, String password, String outputFolder) throws SentinelRuntimeException {
+	public void getEdmByUUID(String id, String user, String password, String outputFolder, String sentinel) throws SentinelRuntimeException {
 
 
 		InputStream content = null;
@@ -52,7 +52,7 @@ public class OpenDataHelper {
 			System.out.println("Open Data Metadata collected.");
 			edm = EntityProvider.readMetadata(content, false);
 			if(content !=null) content.close();
-			entry = readEntry(edm, Constants.COPERNICUS_ODATA_ROOT, Constants.APPLICATION_XML, "Products", id, "?platformname=Sentinel-2", user, password);
+			entry = readEntry(edm, Constants.COPERNICUS_ODATA_ROOT, Constants.APPLICATION_XML, "Products", id, "?platformname=Sentinel-"+sentinel, user, password);
 			System.out.println("Open Data Entry collected.");
 
 
