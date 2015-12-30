@@ -75,12 +75,14 @@ public class Launch {
 
 		switch (searchType) {
 		case "1":
-			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, aHistory);
+			
 			System.out.println("Client url "+hist);
 			
 			clientUrl = keyboard.nextLine();
 
 			if(clientUrl.equals("") && !hist.equals("")) clientUrl = aHistory.getClientUrl();
+			
+			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, aHistory);
 			
 			Feed feed = null;
 			try {
@@ -88,18 +90,13 @@ public class Launch {
 				feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, user, password);
 				System.out.println("Open Search Feed collected.");
 				
-				List<Element> l = feed.getExtensions();
-				for (Element e : l) {
-					//System.out.println(e.toString() + " " +e.getText());
-					QName q = e.getQName();
-					System.out.println(q.getNamespaceURI() + " - "+q.getLocalPart()+" - "+q.getPrefix());
-				}
+				QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
+				QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
+				int tr = Integer.parseInt(feed.getExtension(trQn).getText());
+				int ipp = Integer.parseInt(feed.getExtension(ippQn).getText());
+				int p = tr/ipp;
 				
-				
-				QName nq = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
-				String tr = feed.getExtension(nq).getText();
-				
-				System.out.println("================= "+tr);
+				System.out.println("Total Results: "+tr+" | Items per page: "+ipp+" | Pages: "+p);
 				
 				List<Entry> entries = feed.getEntries();
 				System.out.println("Open Search Feed found "+entries.size()+" entries");
@@ -118,11 +115,13 @@ public class Launch {
 			break;
 
 		case "2":
-			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, aHistory);
+			
 			System.out.println("UUID: "); //8d6ad85e-9914-4a57-99e7-820a8c8996a1
 			String uuid = keyboard.nextLine();
 
 
+			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, aHistory);
+			
 			try {
 				OpenDataHelper.getInstance().getEdmByUUID(uuid, user, password, outputFolder);
 			} catch (SentinelRuntimeException e) {
