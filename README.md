@@ -1,7 +1,7 @@
 # sentinel-extractor
-Copernicus Sentinel Satellites data extractor
+Copernicus Sentinel Satellites data extractor - *"No matter what happens, keep downloading."*
 
-The main idea behind this project is to provide a robust CLI application to collect images (as a background process) from Sentinel-1 and Sentinel-2 sattelites.
+The main idea behind this project is to provide a robust CLI application to collect images (as a background process) from Sentinel-1 and Sentinel-2 sattelites. In other words, a distributed multithreading download manager for Sentinel  data products.
 
 This project explores the resources offered at The Sentinels Scientific Data Hub (https://scihub.copernicus.eu) by In-Orbit Commissioning Review (IOCR) from European Space Agency (ESA).
 
