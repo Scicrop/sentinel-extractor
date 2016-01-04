@@ -2,6 +2,7 @@ package com.scicrop.se.utils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
@@ -41,7 +42,21 @@ public class OpenSearchHelper {
 		
 		//https://scihub.copernicus.eu/dhus/search?q=footprint:%22Intersects(POLYGON((-4.53%2029.85,26.75%2029.85,26.75%2046.80,-4.53%2046.80,-4.53%2029.85)))%22&platformname=Sentinel-2
 		
-		ClientResponse resp = client.get(clientUrl+"&platformname=Sentinel-"+sentinel+compl);
+		
+		int end = 43;
+		
+		clientUrl= clientUrl + sentinel+compl;
+		
+		String init = clientUrl.substring(0, end);
+		String last  = clientUrl.substring(end);
+		
+		
+		
+		clientUrl = init + URLEncoder.encode(last, "UTF-8");
+		
+		
+		
+		ClientResponse resp = client.get(clientUrl);
 		if (resp.getType() == ResponseType.SUCCESS) {
 			Document<Feed> doc = resp.getDocument();
 			ret = doc.getRoot();			

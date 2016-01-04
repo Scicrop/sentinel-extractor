@@ -101,6 +101,10 @@ public class Commons {
 
 		} catch (IOException ex) {
 			ex.printStackTrace();
+		}catch (NumberFormatException nfe){
+			
+			System.out.println("Error trying to convert "+prop.getProperty("size")+" to Long.");
+			
 		} finally {
 			if (input != null) {
 				try {
@@ -464,7 +468,7 @@ public class Commons {
 				if(clientUrl == null) clientUrl = "";
 				if(sentinel == null) sentinel = "";
 			}
-			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl);
+			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl, null);
 			writeArgumentsHistoryPropertyFile(aHistory);
 		} catch (NullPointerException e) {
 			System.out.println("Impossible to write ArgumentsHistory property file.");
@@ -514,18 +518,26 @@ public class Commons {
 
 
 	public ArgumentsHistory readArgumentsHistoryPropertyFile() {
-		ArgumentsHistory ret = null;
+		
 		String userDir = System.getProperty("user.dir") + "/";
+		String filePath = userDir + ".ahistory" + ".properties";
+		
+		return readArgumentsHistoryPropertyFile(filePath);
+	}
+
+	public ArgumentsHistory readArgumentsHistoryPropertyFile(String filePath) {
+		ArgumentsHistory ret = null;
+
 		Properties prop = new Properties();
 		InputStream input = null;
 
 		try {
-			String filePath = userDir + ".ahistory" + ".properties";
+
 			input = new FileInputStream(filePath);
 
 			prop.load(input);
 
-			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("sentinel"), prop.getProperty("clienturl"));
+			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("sentinel"), prop.getProperty("clienturl"), prop.getProperty("socketport"));
 
 
 		} catch (FileNotFoundException ex) {
@@ -543,5 +555,5 @@ public class Commons {
 		}
 		return ret;
 	}
-
+	
 }
