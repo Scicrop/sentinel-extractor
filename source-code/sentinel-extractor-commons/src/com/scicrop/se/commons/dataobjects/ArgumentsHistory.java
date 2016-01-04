@@ -1,4 +1,4 @@
-package com.scicrop.se.dataobjects;
+package com.scicrop.se.commons.dataobjects;
 
 public class ArgumentsHistory {
 
@@ -7,19 +7,33 @@ public class ArgumentsHistory {
 	private String clientUrl = null;
 	private String sentinel = null;
 	private String socketPort = null;
+	private String password = null;
 	
 	
-	public ArgumentsHistory(String user, String outputFolder, String sentinel, String clientUrl, String socketPort) {
+	public ArgumentsHistory(String user, String outputFolder, String sentinel, String clientUrl, String socketPort, String password) {
 		super();
 		this.user = user;
 		this.outputFolder = outputFolder;
 		this.clientUrl = clientUrl;
 		this.sentinel = sentinel;
 		this.socketPort = socketPort;
+		this.password = password;
 	}
 	
 	
 	
+	public String getPassword() {
+		return password;
+	}
+
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+
 	public String getSocketPort() {
 		return socketPort;
 	}

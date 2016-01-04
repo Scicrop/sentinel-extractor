@@ -31,5 +31,6 @@
 	<classpathentry kind="lib" path="lib/axiom-api-1.2.14.jar"/>
 	<classpathentry kind="lib" path="lib/axiom-impl-1.2.14.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sentinel-extractor-commons"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

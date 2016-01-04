@@ -12,8 +12,8 @@ import javax.xml.namespace.QName;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 
-import com.scicrop.se.dataobjects.ArgumentsHistory;
-import com.scicrop.se.dataobjects.EntryFileProperty;
+import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
+import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 import com.scicrop.se.utils.Commons;
 import com.scicrop.se.utils.Constants;
 import com.scicrop.se.utils.OpenDataHelper;
@@ -50,57 +50,7 @@ public class ActionBuilder {
 
 			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, sentinel, aHistory);
 
-			Feed feed = null;
-			try {
-				System.out.println("Processing ...");
-				feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "", user, password);
-
-				QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
-				QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
-				int tr = Integer.parseInt(feed.getExtension(trQn).getText());
-				int ipp = Integer.parseInt(feed.getExtension(ippQn).getText());
-				int p = tr/ipp;
-
-				System.out.println("Total Results: "+tr+" | Items per page: "+ipp+" | Pages: "+p);
-
-				List<String> uuidLst = new ArrayList<String>();
-
-				for(int item = 0; item < tr; item++){
-					try{
-						feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "&start="+item+"&rows=10", user, password);
-						System.out.print("Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
-
-						List<Entry> entries = feed.getEntries();
-
-						//int notUniqueCounter = 0;
-
-						for (Entry entry : entries) {
-							if(!uuidLst.contains(entry.getId().toString())) uuidLst.add(entry.getId().toString());
-						}
-					}catch (Exception e){
-
-					}
-
-				}
-
-				System.out.println("\n\nUUID LIST: \n");
-
-				for(int e = 0; e < uuidLst.size(); e++){
-					System.out.println(e+")\t"+uuidLst.get(e));
-				}
-
-				for(int e = 0; e < uuidLst.size(); e++){
-					try {
-						OpenDataHelper.getInstance().getEdmByUUID(uuidLst.get(e), user, password, outputFolder, sentinel);
-					} catch (SentinelRuntimeException se) {
-						se.printStackTrace();
-					}
-				}
-
-
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			processClientUrl(clientUrl, user, password, sentinel, outputFolder);
 
 			break;
 
@@ -190,9 +140,64 @@ public class ActionBuilder {
 			break;
 		}
 	}
+
+	private void processClientUrl(String clientUrl, String user,
+			String password, String sentinel, String outputFolder) {
+		Feed feed = null;
+		try {
+			System.out.println("Processing ...");
+			feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "", user, password);
+
+			QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
+			QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
+			int tr = Integer.parseInt(feed.getExtension(trQn).getText());
+			int ipp = Integer.parseInt(feed.getExtension(ippQn).getText());
+			int p = tr/ipp;
+
+			System.out.println("Total Results: "+tr+" | Items per page: "+ipp+" | Pages: "+p);
+
+			List<String> uuidLst = new ArrayList<String>();
+
+			for(int item = 0; item < tr; item++){
+				try{
+					feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "&start="+item+"&rows=10", user, password);
+					System.out.print("Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
+
+					List<Entry> entries = feed.getEntries();
+
+					//int notUniqueCounter = 0;
+
+					for (Entry entry : entries) {
+						if(!uuidLst.contains(entry.getId().toString())) uuidLst.add(entry.getId().toString());
+					}
+				}catch (Exception e){
+
+				}
+
+			}
+
+			System.out.println("\n\nUUID LIST: \n");
+
+			for(int e = 0; e < uuidLst.size(); e++){
+				System.out.println(e+")\t"+uuidLst.get(e));
+			}
+
+			for(int e = 0; e < uuidLst.size(); e++){
+				try {
+					OpenDataHelper.getInstance().getEdmByUUID(uuidLst.get(e), user, password, outputFolder, sentinel);
+				} catch (SentinelRuntimeException se) {
+					se.printStackTrace();
+				}
+			}
+
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
 	
 	public void autoSearchDownload(ArgumentsHistory aHistory){
-		
+		processClientUrl(aHistory.getClientUrl(), aHistory.getUser(), aHistory.getPassword(), aHistory.getSentinel(), aHistory.getOutputFolder());
 	}
 
 }

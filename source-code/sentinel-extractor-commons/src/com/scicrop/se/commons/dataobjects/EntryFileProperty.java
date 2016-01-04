@@ -1,4 +1,4 @@
-package com.scicrop.se.dataobjects;
+package com.scicrop.se.commons.dataobjects;
 
 public class EntryFileProperty {
 

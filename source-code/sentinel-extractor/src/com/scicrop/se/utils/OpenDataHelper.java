@@ -17,7 +17,7 @@ import org.apache.olingo.odata2.api.ep.EntityProviderReadProperties;
 import org.apache.olingo.odata2.api.ep.entry.ODataEntry;
 import org.apache.olingo.odata2.api.exception.ODataException;
 
-import com.scicrop.se.dataobjects.EntryFileProperty;
+import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 
 public class OpenDataHelper {
 

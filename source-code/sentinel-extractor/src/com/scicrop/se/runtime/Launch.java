@@ -12,9 +12,10 @@ import javax.xml.namespace.QName;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 
+import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
+import com.scicrop.se.commons.dataobjects.EntryFileProperty;
+import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
 import com.scicrop.se.components.ActionBuilder;
-import com.scicrop.se.dataobjects.ArgumentsHistory;
-import com.scicrop.se.dataobjects.EntryFileProperty;
 import com.scicrop.se.net.SeSocketServer;
 import com.scicrop.se.utils.Commons;
 import com.scicrop.se.utils.Constants;
@@ -23,6 +24,8 @@ import com.scicrop.se.utils.OpenSearchHelper;
 import com.scicrop.se.utils.SentinelRuntimeException;
 
 public class Launch {
+
+	public static SentinelExtractorStatus STATUS = null;
 
 	public static void main(String[] args) {
 

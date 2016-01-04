@@ -24,8 +24,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.olingo.odata2.api.commons.HttpStatusCodes;
 
-import com.scicrop.se.dataobjects.ArgumentsHistory;
-import com.scicrop.se.dataobjects.EntryFileProperty;
+import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
+import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 import com.scicrop.se.http.SeHttpAuthenticator;
 import com.scicrop.se.threads.ThreadChecker;
 
@@ -42,10 +42,6 @@ public class Commons {
 
 
 	public void writeEntryFilePropertyFile(EntryFileProperty entryFileData, String folder){
-
-
-
-
 
 		Properties prop = new Properties();
 		OutputStream output = null;
@@ -468,7 +464,7 @@ public class Commons {
 				if(clientUrl == null) clientUrl = "";
 				if(sentinel == null) sentinel = "";
 			}
-			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl, null);
+			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl, null, null);
 			writeArgumentsHistoryPropertyFile(aHistory);
 		} catch (NullPointerException e) {
 			System.out.println("Impossible to write ArgumentsHistory property file.");
@@ -537,7 +533,7 @@ public class Commons {
 
 			prop.load(input);
 
-			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("sentinel"), prop.getProperty("clienturl"), prop.getProperty("socketport"));
+			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("sentinel"), prop.getProperty("clienturl"), prop.getProperty("socketport"), prop.getProperty("password"));
 
 
 		} catch (FileNotFoundException ex) {

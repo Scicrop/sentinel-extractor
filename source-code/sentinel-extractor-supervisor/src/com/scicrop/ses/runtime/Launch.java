@@ -10,7 +10,7 @@ public class Launch {
 		System.out.println("\n\nSentinel Extractor Supervisor 0.0.1\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
 		
 		SeSocketClient sesc = new SeSocketClient();
-		sesc.listen("127.0.0.1", 9002);
+		sesc.listen("127.0.0.1", 9001);
 		
 	}
 

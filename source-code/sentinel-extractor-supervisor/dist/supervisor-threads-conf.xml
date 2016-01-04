@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<supervisor>
+	<thread prop="/tmp/test1.conf" />
+	<thread prop="/tmp/test2.conf" />
+</supervisor>

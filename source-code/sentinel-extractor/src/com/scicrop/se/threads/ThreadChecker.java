@@ -4,6 +4,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import com.scicrop.se.commons.net.NetUtils;
+import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
+import com.scicrop.se.runtime.Launch;
+
 public class ThreadChecker extends Thread {
 
 
@@ -21,7 +25,8 @@ public class ThreadChecker extends Thread {
 
 	public void forceStop(){
 		forceStop = true;
-		System.out.println("ThreadChecker status:    FORCE STOP                       ");
+		Launch.STATUS = NetUtils.SentinelExtractorStatus.FORCE_STOP;
+		System.out.println("ThreadChecker status:    "+Launch.STATUS+"                       ");
 	}
 
 	public void run(){
@@ -46,10 +51,17 @@ public class ThreadChecker extends Thread {
 
 				lenT1 = raf.length();
 
-				if(lenT1 > lenT0) System.out.print("ThreadChecker status:             DOWNLOADING\r");
-				else if(len == lenT1 || len == lenT0) System.out.println("ThreadChecker status: FINISHED");
+				if(lenT1 > lenT0){
+					Launch.STATUS = NetUtils.SentinelExtractorStatus.DOWNLOADING;
+					System.out.print("ThreadChecker status:             "+Launch.STATUS+"          \r");
+				}
+				else if(len == lenT1 || len == lenT0){
+					Launch.STATUS = NetUtils.SentinelExtractorStatus.FINISHED;
+					System.out.println("ThreadChecker status: "+Launch.STATUS);
+				}
 				else if(lenT0 == lenT1){
-					System.out.println("ThreadChecker status: STALLED         ");
+					Launch.STATUS = NetUtils.SentinelExtractorStatus.STALLED;
+					System.out.println("ThreadChecker status: "+Launch.STATUS+"         ");
 					System.exit(1);
 				} 
 
