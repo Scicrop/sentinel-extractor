@@ -15,13 +15,13 @@ import org.apache.abdera.model.Feed;
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
+import com.scicrop.se.commons.utils.Commons;
+import com.scicrop.se.commons.utils.Constants;
+import com.scicrop.se.commons.utils.SentinelRuntimeException;
 import com.scicrop.se.components.ActionBuilder;
 import com.scicrop.se.net.SeSocketServer;
-import com.scicrop.se.utils.Commons;
-import com.scicrop.se.utils.Constants;
 import com.scicrop.se.utils.OpenDataHelper;
 import com.scicrop.se.utils.OpenSearchHelper;
-import com.scicrop.se.utils.SentinelRuntimeException;
 
 public class Launch {
 

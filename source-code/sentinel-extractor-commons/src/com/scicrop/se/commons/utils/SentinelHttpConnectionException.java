@@ -1,4 +1,4 @@
-package com.scicrop.se.utils;
+package com.scicrop.se.commons.utils;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.scicrop.se.utils;
+package com.scicrop.se.commons.utils;
 
 public class Constants {
 	public static final String HTTP_METHOD_PUT = "PUT";

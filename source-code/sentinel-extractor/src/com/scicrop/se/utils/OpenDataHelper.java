@@ -18,6 +18,10 @@ import org.apache.olingo.odata2.api.ep.entry.ODataEntry;
 import org.apache.olingo.odata2.api.exception.ODataException;
 
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
+import com.scicrop.se.commons.utils.Commons;
+import com.scicrop.se.commons.utils.Constants;
+import com.scicrop.se.commons.utils.SentinelHttpConnectionException;
+import com.scicrop.se.commons.utils.SentinelRuntimeException;
 
 public class OpenDataHelper {
 
@@ -48,7 +52,7 @@ public class OpenDataHelper {
 		ODataEntry entry = null;
 
 		try {
-			content = Commons.getInstance().execute(Constants.COPERNICUS_ODATA_METALINK, Constants.APPLICATION_XML, Constants.HTTP_METHOD_GET, user, password);
+			content = DownloadHelper.getInstance().execute(Constants.COPERNICUS_ODATA_METALINK, Constants.APPLICATION_XML, Constants.HTTP_METHOD_GET, user, password);
 			System.out.println("Open Data Metadata collected.");
 			edm = EntityProvider.readMetadata(content, false);
 			if(content !=null) content.close();
@@ -105,7 +109,7 @@ public class OpenDataHelper {
 		while((entryFp == null ||  entryFp.getSize() != contentLength)){
 			System.out.println("\n\nTry: "+tries);
 
-			entryFp = Commons.getInstance().getMd5ByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password);
+			entryFp = DownloadHelper.getInstance().getMd5ByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password);
 
 			if(entryFp !=null && entryFp.getSize() == contentLength) break;
 			else{
@@ -146,7 +150,7 @@ public class OpenDataHelper {
 			//content = Commons.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);
 			//https://scihub.copernicus.eu/dhus/odata/v1/Products?$filter=Name%20eq%20%27S1A_IW_GRDH_1SDV_20151221T164750_20151221T164815_009143_00D274_014F%27
 
-			content = Commons.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);
+			content = DownloadHelper.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);
 			ode = EntityProvider.readEntry(contentType, entityContainer.getEntitySet(entitySetName), content, EntityProviderReadProperties.init().build());
 
 

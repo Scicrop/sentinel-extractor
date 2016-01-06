@@ -1,4 +1,4 @@
-package com.scicrop.se.utils;
+package com.scicrop.se.commons.utils;
 
 
 public class SentinelRuntimeException extends Exception {
