@@ -101,7 +101,7 @@ public class DownloadHelper {
 
 						randomAccessfile.write(data, 0, bytesread);
 						downloadedFileSize += bytesread;
-						formatDownloadedProgress(completeFileSize, downloadedFileSize);
+						printDownloadedProgress(completeFileSize, downloadedFileSize);
 					}
 
 
@@ -130,7 +130,7 @@ public class DownloadHelper {
 					bytesBuffered += bytesread;
 					downloadedFileSize += bytesread;
 
-					formatDownloadedProgress(completeFileSize, downloadedFileSize);
+					printDownloadedProgress(completeFileSize, downloadedFileSize);
 
 
 					if (bytesBuffered > 1024 * 1024) { //flush after 1MB
@@ -179,14 +179,18 @@ public class DownloadHelper {
 
 	}
 
-	private void formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {
+	public void printDownloadedProgress(long completeFileSize, long downloadedFileSize) {
+		System.out.print(formatDownloadedProgress(completeFileSize, downloadedFileSize)+"\r");
+	}
+	
+	public String formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {
 		DecimalFormat dfa = new DecimalFormat("000.0");
 		DecimalFormat dfb = new DecimalFormat("###,###,###,###");
 		double currentProgress;
 		String formatedProgress;
 		currentProgress = ((((double)downloadedFileSize) * 100) / ((double)completeFileSize));
 		formatedProgress = dfa.format(currentProgress)+"% "+dfb.format(downloadedFileSize) + " bytes";
-		System.out.print(formatedProgress+"\r");
+		return formatedProgress;
 	}
 	
 	private void checkStatus(HttpURLConnection connection) throws SentinelRuntimeException, SentinelHttpConnectionException {

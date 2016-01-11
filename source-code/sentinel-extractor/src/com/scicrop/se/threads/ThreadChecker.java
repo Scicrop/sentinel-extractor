@@ -4,9 +4,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils;
 import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
+import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.runtime.Launch;
+import com.scicrop.se.utils.DownloadHelper;
 
 public class ThreadChecker extends Thread {
 
@@ -25,12 +28,14 @@ public class ThreadChecker extends Thread {
 
 	public void forceStop(){
 		forceStop = true;
-		Launch.STATUS = NetUtils.SentinelExtractorStatus.FORCE_STOP;
-		System.out.println("ThreadChecker status:    "+Launch.STATUS+"                       ");
+		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FORCE_STOP, null);
+		System.out.println("ThreadChecker status:    "+Launch.STATUS.getSentinelExtractorStatus()+"                       ");
 	}
 
 	public void run(){
 
+		
+		
 
 		RandomAccessFile raf = null;
 
@@ -50,18 +55,20 @@ public class ThreadChecker extends Thread {
 				Thread.sleep(60000);
 
 				lenT1 = raf.length();
+				
+				String statusDescription = outputFileNamePath+" ("+DownloadHelper.getInstance().formatDownloadedProgress(len, lenT1)+")";
 
 				if(lenT1 > lenT0){
-					Launch.STATUS = NetUtils.SentinelExtractorStatus.DOWNLOADING;
-					System.out.print("ThreadChecker status:             "+Launch.STATUS+"          \r");
+					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.DOWNLOADING, statusDescription);
+					System.out.print("ThreadChecker status:             "+Launch.STATUS.getSentinelExtractorStatus()+"          \r");
 				}
 				else if(len == lenT1 || len == lenT0){
-					Launch.STATUS = NetUtils.SentinelExtractorStatus.FINISHED;
-					System.out.println("ThreadChecker status: "+Launch.STATUS);
+					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FINISHED, statusDescription);
+					System.out.println("ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus());
 				}
 				else if(lenT0 == lenT1){
-					Launch.STATUS = NetUtils.SentinelExtractorStatus.STALLED;
-					System.out.println("ThreadChecker status: "+Launch.STATUS+"         ");
+					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.STALLED, statusDescription);
+					System.out.println("ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus()+"         ");
 					System.exit(1);
 				} 
 

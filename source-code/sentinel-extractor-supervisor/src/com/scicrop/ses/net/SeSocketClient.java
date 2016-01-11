@@ -7,33 +7,38 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import com.scicrop.se.commons.dataobjects.SocketMessage;
 import com.scicrop.se.commons.net.NetUtils;
+import com.scicrop.ses.runtime.Launch;
 
 public class SeSocketClient {
 	
 	private String inWord = null;
-	private String outWord = null;
+	private SocketMessage outWord = null;
 	
 	   public void listen(String serverName, int port){
 
 		      try {
-		         System.out.println("Connecting to " + serverName + " on port " + port);
+
 		         Socket client = new Socket(serverName, port);
-		         System.out.println("Just connected to " + client.getRemoteSocketAddress());
 		         OutputStream outToServer = client.getOutputStream();
 		         DataOutputStream out = new DataOutputStream(outToServer);
-		         out.writeUTF("?:status");
+		         outWord = new SocketMessage(client.getLocalAddress().getHostAddress(), client.getLocalPort(), "?", "status", Launch.CONF_PARAM);
+		         out.writeUTF(outWord.toString());
+		         System.out.println(outWord.toString());
 		         InputStream inFromServer = client.getInputStream();
 		         DataInputStream in = new DataInputStream(inFromServer);
 		         inWord = in.readUTF();
-		         outWord = NetUtils.getInstance().handleProtocol(inWord, null);
+		         outWord = NetUtils.getInstance().handleProtocol(inWord, null, client.getLocalAddress().getHostAddress(), client.getLocalPort(), Launch.CONF_PARAM);
 		         System.out.println(inWord);
-		         out.writeUTF(outWord);
-		         System.out.println(outWord);
+		         out.writeUTF(outWord.toString());
+		         System.out.println(outWord.toString());
 		         client.close();
-		      }catch(IOException e)
-		      {
+		         
+		      } catch(IOException e) {
+		    	  
 		         e.printStackTrace();
+		         
 		      }
 		   
 	   }

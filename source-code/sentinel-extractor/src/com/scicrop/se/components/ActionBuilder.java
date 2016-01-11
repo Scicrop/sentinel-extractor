@@ -11,12 +11,16 @@ import javax.xml.namespace.QName;
 
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.Constants;
+import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.commons.utils.SentinelRuntimeException;
+import com.scicrop.se.net.SeSocketServer;
 import com.scicrop.se.utils.OpenDataHelper;
 import com.scicrop.se.utils.OpenSearchHelper;
 
@@ -25,6 +29,8 @@ public class ActionBuilder {
 	private ActionBuilder(){}
 
 	private static ActionBuilder INSTANCE = null;
+	
+	private static Log log = LogFactory.getLog(ActionBuilder.class);
 
 	public static ActionBuilder getInstance(){
 		if(INSTANCE == null) INSTANCE = new ActionBuilder();
@@ -141,11 +147,10 @@ public class ActionBuilder {
 		}
 	}
 
-	private void processClientUrl(String clientUrl, String user,
-			String password, String sentinel, String outputFolder) {
+	private void processClientUrl(String clientUrl, String user, String password, String sentinel, String outputFolder) {
 		Feed feed = null;
 		try {
-			System.out.println("Processing ...");
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Processing ...");
 			feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "", user, password);
 
 			QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
@@ -154,7 +159,7 @@ public class ActionBuilder {
 			int ipp = Integer.parseInt(feed.getExtension(ippQn).getText());
 			int p = tr/ipp;
 
-			System.out.println("Total Results: "+tr+" | Items per page: "+ipp+" | Pages: "+p);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Total Results: "+tr+" | Items per page: "+ipp+" | Pages: "+p);
 
 			List<String> uuidLst = new ArrayList<String>();
 
@@ -162,6 +167,8 @@ public class ActionBuilder {
 				try{
 					feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "&start="+item+"&rows=10", user, password);
 					System.out.print("Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
+					
+					LogHelper.getInstance().handleVerboseLog(false, Constants.LOG, log, 'i', "Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
 
 					List<Entry> entries = feed.getEntries();
 
@@ -176,10 +183,10 @@ public class ActionBuilder {
 
 			}
 
-			System.out.println("\n\nUUID LIST: \n");
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "\n\nUUID LIST: \n");
 
 			for(int e = 0; e < uuidLst.size(); e++){
-				System.out.println(e+")\t"+uuidLst.get(e));
+				LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', e+")\t"+uuidLst.get(e));
 			}
 
 			for(int e = 0; e < uuidLst.size(); e++){

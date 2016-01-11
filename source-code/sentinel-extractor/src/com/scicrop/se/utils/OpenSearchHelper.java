@@ -12,6 +12,10 @@ import org.apache.abdera.protocol.client.AbderaClient;
 import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 
+import com.scicrop.se.commons.dataobjects.Payload;
+import com.scicrop.se.commons.net.NetUtils;
+import com.scicrop.se.runtime.Launch;
+
 public class OpenSearchHelper {
 	
 	private OpenSearchHelper(){}
@@ -25,6 +29,7 @@ public class OpenSearchHelper {
 	
 	public Feed getFeed(String host, String clientUrl, String sentinel, String compl, String user, String password) throws IOException {
 
+		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.PROCESSING_QUERY, null);
 
 		Abdera abdera = new Abdera();
 		Feed ret = null;

@@ -20,7 +20,15 @@ public class Constants {
 	public static final String COPERNICUS_ODATA_ROOT = "https://scihub.copernicus.eu/dhus/odata/v1/";
 
 	public static final int BUFFER_SIZE = 8192;
+	
+	public static final String APP_NAME = "sentinel-extractor";
+	public static final String LOG_FOLDER = "/tmp/";
+	
+	public static final boolean LOG = true;
+	public static final boolean VERBOSE = true;
 
 	public static String user = "guest";
 	public static String password = "guest";
+	
+	public static String JAR_PATH = "/tmp/se.jar";
 }

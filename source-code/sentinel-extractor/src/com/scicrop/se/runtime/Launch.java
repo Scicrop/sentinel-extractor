@@ -1,32 +1,23 @@
 package com.scicrop.se.runtime;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
-import javax.xml.namespace.QName;
-
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Feed;
-
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
-import com.scicrop.se.commons.dataobjects.EntryFileProperty;
-import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
+import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.utils.Commons;
-import com.scicrop.se.commons.utils.Constants;
-import com.scicrop.se.commons.utils.SentinelRuntimeException;
+import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.components.ActionBuilder;
 import com.scicrop.se.net.SeSocketServer;
-import com.scicrop.se.utils.OpenDataHelper;
-import com.scicrop.se.utils.OpenSearchHelper;
+
+
 
 public class Launch {
 
-	public static SentinelExtractorStatus STATUS = null;
-
+	public static Payload STATUS = null;
+	public static String CONF_PARAM = null;
+	
 	public static void main(String[] args) {
 
 
@@ -37,7 +28,11 @@ public class Launch {
 		if(args != null && args[0] !=null && (new File(args[0].trim()).exists()) && (new File(args[0].trim()).isFile())) {
 
 			aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(args[0].trim());
+			
+			CONF_PARAM = args[0].trim();
 
+			LogHelper.getInstance().setLogger(aHistory.getSocketPort());
+			
 			try {
 				Thread t = new SeSocketServer(Integer.parseInt(aHistory.getSocketPort()));
 				t.start();
@@ -48,11 +43,6 @@ public class Launch {
 			ActionBuilder.getInstance().autoSearchDownload(aHistory);
 
 		}else{
-
-
-
-
-
 
 			String clientUrl = null;
 			File oFolder = null;
