@@ -20,29 +20,28 @@ import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.Constants;
 import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.commons.utils.SentinelRuntimeException;
-import com.scicrop.se.net.SeSocketServer;
 import com.scicrop.se.utils.OpenDataHelper;
 import com.scicrop.se.utils.OpenSearchHelper;
 
 public class ActionBuilder {
-	
+
 	private ActionBuilder(){}
 
 	private static ActionBuilder INSTANCE = null;
-	
+
 	private static Log log = LogFactory.getLog(ActionBuilder.class);
 
 	public static ActionBuilder getInstance(){
 		if(INSTANCE == null) INSTANCE = new ActionBuilder();
 		return INSTANCE;
 	}
-	
+
 	public void manualSwitcher(ArgumentsHistory aHistory, String clientUrl, File oFolder, String user, String password, String sentinel, String outputFolder, String searchType) {
-		
+
 		Scanner keyboard = new Scanner(System.in);
-		
+
 		String hist = null;
-		
+
 		switch (searchType) {
 		case "1":
 
@@ -112,20 +111,22 @@ public class ActionBuilder {
 
 				for (int i=0; i < content.length; i++) {
 
-					EntryFileProperty value = Commons.getInstance().readEntryPropertyFile(new File(outputFolder + content[i]));
+					if(!content[i].equals(".ahistory.properties")){
 
-					File f = new File(outputFolder+ value.getName());
+						EntryFileProperty value = Commons.getInstance().readEntryPropertyFile(new File(outputFolder + content[i]));
 
-					if(f.length() < value.getSize()){
+						File f = new File(outputFolder+ value.getName());
 
-						incompleteDownloadsCount++;
+						if(f.length() < value.getSize()){
 
-						System.out.println("Resuming file ("+incompleteDownloadsCount+") "+value.getName()+ " ["+value.getUuid()+"]");
-						OpenDataHelper.getInstance().getEdmByUUID(value.getUuid(), user, password, outputFolder, sentinel);
+							incompleteDownloadsCount++;
 
-						found = true;
-					}
+							System.out.println("Resuming file ("+incompleteDownloadsCount+") "+value.getName()+ " ["+value.getUuid()+"]");
+							OpenDataHelper.getInstance().getEdmByUUID(value.getUuid(), user, password, outputFolder, sentinel);
 
+							found = true;
+						}
+					}else System.out.println("Skipping file history properties file.");
 
 
 				}
@@ -167,7 +168,7 @@ public class ActionBuilder {
 				try{
 					feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "&start="+item+"&rows=10", user, password);
 					System.out.print("Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
-					
+
 					LogHelper.getInstance().handleVerboseLog(false, Constants.LOG, log, 'i', "Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
 
 					List<Entry> entries = feed.getEntries();
@@ -202,7 +203,7 @@ public class ActionBuilder {
 			e1.printStackTrace();
 		}
 	}
-	
+
 	public void autoSearchDownload(ArgumentsHistory aHistory){
 		processClientUrl(aHistory.getClientUrl(), aHistory.getUser(), aHistory.getPassword(), aHistory.getSentinel(), aHistory.getOutputFolder());
 	}

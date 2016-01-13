@@ -1,11 +1,6 @@
 package com.scicrop.ses.runtime;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.List;
 
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
@@ -15,7 +10,7 @@ import com.scicrop.se.commons.threads.LauncherExtProcessThread;
 import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.Constants;
 import com.scicrop.se.commons.utils.XmlUtils;
-import com.scicrop.ses.threads.ProcessListenerThread;
+import com.scicrop.ses.net.SeUdpServer;
 
 public class Launch {
 	
@@ -46,7 +41,7 @@ public class Launch {
 
 					if(jarFile.exists() && jarFile.isFile()){
 
-						Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, confParam});
+						Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, confParam, "&"});
 						pThread.start();
 
 					}else{
@@ -54,10 +49,12 @@ public class Launch {
 						System.exit(0);
 					}
 
-					ProcessListenerThread procListenerThread = new ProcessListenerThread(Integer.parseInt(aHistory.getSocketPort()));
-					procListenerThread.start();
+					
 
 				}
+				
+				Thread procListenerThread = new SeUdpServer(9001);
+				procListenerThread.start();
 			}
 		}else{
 

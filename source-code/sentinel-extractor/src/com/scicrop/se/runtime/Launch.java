@@ -1,7 +1,6 @@
 package com.scicrop.se.runtime;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Scanner;
 
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
@@ -9,7 +8,8 @@ import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.components.ActionBuilder;
-import com.scicrop.se.net.SeSocketServer;
+import com.scicrop.se.net.SeUdpClient;
+import com.scicrop.se.threads.ActionBuilderThread;
 
 
 
@@ -21,11 +21,11 @@ public class Launch {
 	public static void main(String[] args) {
 
 
-		System.out.println("\n\nSentinel Extractor 0.1.3\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
+		System.out.println("\n\nSentinel Extractor 0.2.0\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
 
 		ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile();
 
-		if(args != null && args[0] !=null && (new File(args[0].trim()).exists()) && (new File(args[0].trim()).isFile())) {
+		if(args != null && args.length > 0 && args[0] !=null && (new File(args[0].trim()).exists()) && (new File(args[0].trim()).isFile())) {
 
 			aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(args[0].trim());
 			
@@ -33,14 +33,14 @@ public class Launch {
 
 			LogHelper.getInstance().setLogger(aHistory.getSocketPort());
 			
-			try {
-				Thread t = new SeSocketServer(Integer.parseInt(aHistory.getSocketPort()));
+
+				Thread t = new SeUdpClient(9001);
 				t.start();
-			}catch(IOException e) {
-				e.printStackTrace();
-			}
+
+
 			
-			ActionBuilder.getInstance().autoSearchDownload(aHistory);
+			Thread actionBuilderThread = new ActionBuilderThread(aHistory);
+			actionBuilderThread.start();
 
 		}else{
 

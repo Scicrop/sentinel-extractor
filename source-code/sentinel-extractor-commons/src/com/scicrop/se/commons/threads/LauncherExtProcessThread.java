@@ -14,10 +14,14 @@ public class LauncherExtProcessThread extends Thread {
 	public void run(){
 		try {
 			ProcessBuilder processBuilder = new ProcessBuilder(execParams);
-			Process p = processBuilder.start();
-			System.out.println("Process started with parameters from: "+execParams[execParams.length-1]);
+			processBuilder.inheritIO().start();
+			System.out.println("Process started with parameters from: "+execParams[execParams.length-2]);
 		} catch (IOException e) {
+			
+			
+			
 			e.printStackTrace();
+			
 		}
 	}
 

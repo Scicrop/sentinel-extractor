@@ -1,14 +1,14 @@
 package com.scicrop.se.utils;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.odata2.api.edm.Edm;
 import org.apache.olingo.odata2.api.edm.EdmEntityContainer;
 import org.apache.olingo.odata2.api.ep.EntityProvider;
@@ -20,6 +20,7 @@ import org.apache.olingo.odata2.api.exception.ODataException;
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.Constants;
+import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.commons.utils.SentinelHttpConnectionException;
 import com.scicrop.se.commons.utils.SentinelRuntimeException;
 
@@ -28,6 +29,8 @@ public class OpenDataHelper {
 	private OpenDataHelper(){}
 
 	private static OpenDataHelper INSTANCE = null;
+	
+	private static Log log = LogFactory.getLog(OpenDataHelper.class);
 
 	public static OpenDataHelper getInstance(){
 		if(INSTANCE == null) INSTANCE = new OpenDataHelper();
@@ -53,11 +56,11 @@ public class OpenDataHelper {
 
 		try {
 			content = DownloadHelper.getInstance().execute(Constants.COPERNICUS_ODATA_METALINK, Constants.APPLICATION_XML, Constants.HTTP_METHOD_GET, user, password);
-			System.out.println("Open Data Metadata collected.");
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Open Data Metadata collected.");
 			edm = EntityProvider.readMetadata(content, false);
 			if(content !=null) content.close();
 			entry = readEntry(edm, Constants.COPERNICUS_ODATA_ROOT, Constants.APPLICATION_XML, "Products", id, "?platformname=Sentinel-"+sentinel, user, password);
-			System.out.println("Open Data Entry collected.");
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Open Data Entry collected.");
 
 
 
@@ -65,7 +68,7 @@ public class OpenDataHelper {
 
 			Set<String> propMapKeySet = propMap.keySet();
 
-			System.out.println("\n\n=========================================");
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "=========================================");
 
 
 			contentLength = Long.parseLong(propMap.get("ContentLength").toString());
@@ -77,13 +80,13 @@ public class OpenDataHelper {
 
 			hexChecksum = checksum.get("Value").toString();
 
-			System.out.println("Id: "+id);
-			System.out.println("Checksum: "+hexChecksum);
-			System.out.println("Filename: "+fileName);
-			System.out.println("ContentLength: "+contentLength);
-			System.out.println("ContentType: "+contentType);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Id: "+id);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Checksum: "+hexChecksum);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Filename: "+fileName);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ContentLength: "+contentLength);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ContentType: "+contentType);
 
-			System.out.println("=========================================\n\n");
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "=========================================\n\n");
 
 			Commons.getInstance().writeEntryFilePropertyFile(new EntryFileProperty(fileName, hexChecksum, id, contentLength), outputFolder);
 
@@ -107,7 +110,7 @@ public class OpenDataHelper {
 		int tryLimit = 3;
 
 		while((entryFp == null ||  entryFp.getSize() != contentLength)){
-			System.out.println("\n\nTry: "+tries);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Try: "+tries);
 
 			entryFp = DownloadHelper.getInstance().getMd5ByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password);
 
@@ -115,13 +118,13 @@ public class OpenDataHelper {
 			else{
 
 				try {
-					System.out.println("\n\nTry "+tries+" did not work. Please wait 30s...");
+					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Try "+tries+" did not work. Please wait 30s...");
 					Thread.sleep(30000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				if(tries > tryLimit && (entryFp == null ||  entryFp.getSize() != contentLength)){
-					System.out.println("Skiping...");
+					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Skiping...");
 					break;
 				}
 				tries ++;
@@ -129,10 +132,10 @@ public class OpenDataHelper {
 
 		}
 
-		if(tries > tryLimit) System.out.println("Resuming tries for file "+fileName+" did not work.");
+		if(tries > tryLimit) LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Resuming tries for file "+fileName+" did not work.");
 		else{
-			if(entryFp.getMd5Checksum().equalsIgnoreCase(hexChecksum)) System.out.println("Filename: "+fileName+ " downloaded and checked "+hexChecksum);
-			else System.out.println("Filename: "+fileName+ " downloaded [INVALID CHECKSUM]");
+			if(entryFp.getMd5Checksum().equalsIgnoreCase(hexChecksum)) LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Filename: "+fileName+ " downloaded and checked "+hexChecksum);
+			else LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Filename: "+fileName+ " downloaded [INVALID CHECKSUM]");
 		}
 
 

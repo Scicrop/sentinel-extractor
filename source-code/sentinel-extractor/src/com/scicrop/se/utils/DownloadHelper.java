@@ -16,11 +16,14 @@ import java.text.DecimalFormat;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.odata2.api.commons.HttpStatusCodes;
 
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.Constants;
+import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.commons.utils.SentinelHttpConnectionException;
 import com.scicrop.se.commons.utils.SentinelRuntimeException;
 import com.scicrop.se.http.SeHttpAuthenticator;
@@ -33,6 +36,8 @@ public class DownloadHelper {
 
 	private static DownloadHelper INSTANCE = null;
 
+	private static Log log = LogFactory.getLog(DownloadHelper.class);
+	
 	public static DownloadHelper getInstance(){
 		if(INSTANCE == null) INSTANCE = new DownloadHelper();
 		return INSTANCE;
@@ -71,7 +76,7 @@ public class DownloadHelper {
 				downloadedFileSize = outFile.length();
 
 				if(downloadedFileSize < completeFileSize){
-					System.out.println("Incomplete download. Resuming.");
+					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Incomplete download. Resuming.");
 
 					connection.setRequestProperty("Range", "bytes=" + downloadedFileSize + "-");
 
@@ -80,7 +85,7 @@ public class DownloadHelper {
 						checkStatus(connection);
 						if(!tChecker.isAlive()) tChecker.start();
 					} catch (SentinelHttpConnectionException e) {
-						System.err.println("====> "+e.getMessage());
+						LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'e',"====> "+e.getMessage());
 						return null;
 					}
 
@@ -93,6 +98,8 @@ public class DownloadHelper {
 
 					in = connection.getInputStream();
 
+					int logStep = 0;
+					
 					long downloadDiff = completeFileSize - downloadedFileSize;
 					if (downloadDiff > Constants.BUFFER_SIZE) data = new byte[Constants.BUFFER_SIZE];
 					else data = new byte[(int) downloadDiff];
@@ -102,15 +109,17 @@ public class DownloadHelper {
 						randomAccessfile.write(data, 0, bytesread);
 						downloadedFileSize += bytesread;
 						printDownloadedProgress(completeFileSize, downloadedFileSize);
+						
+
 					}
 
 
 				}else{
-					System.out.println("File already downloaded.");
+					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"File already downloaded.");
 				}
 			}else{
 
-				System.out.println("Starting download.");
+				LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Starting download.");
 				connection.connect();
 				try {
 					checkStatus(connection);
@@ -180,7 +189,8 @@ public class DownloadHelper {
 	}
 
 	public void printDownloadedProgress(long completeFileSize, long downloadedFileSize) {
-		System.out.print(formatDownloadedProgress(completeFileSize, downloadedFileSize)+"\r");
+		
+		if(Constants.VERBOSE) System.out.print(formatDownloadedProgress(completeFileSize, downloadedFileSize)+"\r");
 	}
 	
 	public String formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {

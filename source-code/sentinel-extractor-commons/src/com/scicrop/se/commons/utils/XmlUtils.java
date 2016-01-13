@@ -49,7 +49,7 @@ public class XmlUtils {
 
 					Element eElement = (Element) nNode;
 
-					threadDescLst.add(new ThreadDescriptorObject(eElement.getAttribute("prop")));
+					threadDescLst.add(new ThreadDescriptorObject(eElement.getAttribute("prop"), eElement.getAttribute("jarpath")));
 
 
 				}

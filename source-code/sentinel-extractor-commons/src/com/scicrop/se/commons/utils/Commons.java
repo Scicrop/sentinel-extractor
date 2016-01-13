@@ -86,7 +86,7 @@ public class Commons {
 			ex.printStackTrace();
 		}catch (NumberFormatException nfe){
 			
-			System.out.println("Error trying to convert "+prop.getProperty("size")+" to Long.");
+			System.out.println("Error trying to convert "+prop.getProperty("size")+" to Long. ["+source+"]");
 			
 		} finally {
 			if (input != null) {

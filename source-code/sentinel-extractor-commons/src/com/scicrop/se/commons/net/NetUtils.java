@@ -1,9 +1,15 @@
 package com.scicrop.se.commons.net;
 
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.dataobjects.SocketMessage;
 import com.scicrop.se.commons.threads.LauncherExtProcessThread;
 import com.scicrop.se.commons.utils.Constants;
+import com.scicrop.se.commons.utils.LogHelper;
 
 public class NetUtils {
 
@@ -11,52 +17,28 @@ public class NetUtils {
 
 	private static NetUtils INSTANCE = null;
 
+	private static Log log = LogFactory.getLog(NetUtils.class);
+	
 	public static NetUtils getInstance(){
 		if(INSTANCE == null) INSTANCE = new NetUtils();
 		return INSTANCE;
 	}
 	
-	public SocketMessage handleProtocol(String inWord, Payload status, String host, int port, String confParam){
-		SocketMessage outWord = new SocketMessage();
+	public Payload handleProtocol(String sentence){
 		
 		
-		
-		SocketMessage sMessage = parseMessage(inWord);
-		
-		switch (sMessage.getHeader()) {
-		case "?":
-			
-			outWord = evaluateReceivedRequest(sMessage.getPayload(), status);
-			
-			break;
-
-		case "=":
-			
-			outWord = evaluateReceivedStatus(sMessage.getPayload());
-			
-			break;	
-			
-		case "!":
-			
-			outWord = evaluateReceivedAction(sMessage);
-			
-			break;	
-			
-			
-		default:
-			
-			outWord.setHeader("=");
-			outWord.setPayload("header_not_defined");
-			
-			break;
-		}
-		
-		outWord.setHost(host);
-		outWord.setPort(port);
-		
-		return outWord;
+		return parsePayload(sentence);
 	}
 	
+	private Payload parsePayload(String sentence) {
+		String[] sentenceSplit = sentence.split(":");
+		
+		Payload payload = new Payload(NetUtils.SentinelExtractorStatus.valueOf(sentenceSplit[0]), sentenceSplit[1], Integer.parseInt(sentenceSplit[2]), sentenceSplit[3].trim());
+		payload.setDate(new Date());
+		
+		return payload;
+	}
+
 	private SocketMessage evaluateReceivedRequest(String receivedRequest, Payload status) {
 		SocketMessage outWord = new SocketMessage();
 		
@@ -71,8 +53,10 @@ public class NetUtils {
 		
 		case "download_status":
 			
-			outWord.setHeader("=");
-			outWord.setPayload(status.getDescription());
+			outWord.setHeader("<");
+			//outWord.setPayload(status.getDescription());
+			
+			outWord.setPayload("oi");
 			
 			break;	
 		
@@ -104,11 +88,14 @@ public class NetUtils {
 	
 		case "kill":
 			
-			System.out.println("Killed by supervisor.");
-			System.exit(0);
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "Killed by supervisor.");
 			
 			outWord.setHeader("!");
 			outWord.setPayload("restart");
+			
+			System.exit(0);
+			
+			
 			
 			break;
 			
@@ -129,10 +116,10 @@ public class NetUtils {
 		return outWord;
 	}
 
-	private SocketMessage evaluateReceivedStatus(String receivedStatus) {
+	private SocketMessage evaluateReceivedStatus(SocketMessage receivedStatus, Payload status) {
 		SocketMessage outWord = new SocketMessage();
 		
-		switch (receivedStatus) {
+		switch (receivedStatus.getPayload()) {
 	
 		case "STALLED":
 			
@@ -152,7 +139,7 @@ public class NetUtils {
 		default:
 			
 			outWord.setHeader("=");
-			outWord.setPayload("status_not_defined");
+			outWord.setPayload("status_not_defined|"+receivedStatus.getPayload());
 			break;
 		}
 		
@@ -161,7 +148,7 @@ public class NetUtils {
 
 	public enum SentinelExtractorStatus {
 		
-		PROCESSING_QUERY("Processing query"), DOWNLOADING("Downloading"), STALLED("Stalled"), FORCE_STOP("Force Stop"), FINISHED("Finished"); 
+		STARTING("Starting"), PROCESSING_QUERY("Processing query"), DOWNLOADING("Downloading"), STALLED("Stalled"), FORCE_STOP("Force Stop"), FINISHED("Finished"); 
 		private String value = null; 
 		private SentinelExtractorStatus(String value) { this.value = value; }
 

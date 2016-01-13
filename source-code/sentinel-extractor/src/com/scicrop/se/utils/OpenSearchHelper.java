@@ -29,7 +29,7 @@ public class OpenSearchHelper {
 	
 	public Feed getFeed(String host, String clientUrl, String sentinel, String compl, String user, String password) throws IOException {
 
-		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.PROCESSING_QUERY, null);
+		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.PROCESSING_QUERY, null, -1, Launch.CONF_PARAM);
 
 		Abdera abdera = new Abdera();
 		Feed ret = null;
