@@ -45,7 +45,6 @@ public class SeUdpClient extends Thread {
 
 				String sentence = new Payload(SentinelExtractorStatus.STARTING, "", -1, Launch.CONF_PARAM).toString();
 				if(Launch.STATUS != null) sentence = Launch.STATUS.toString();
-				LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "sending: "+sentence);
 				sendData = sentence.getBytes();
 				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
 				clientSocket.send(sendPacket);
