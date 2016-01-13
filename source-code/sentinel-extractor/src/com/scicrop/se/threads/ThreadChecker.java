@@ -65,8 +65,8 @@ public class ThreadChecker extends Thread {
 
 				if(lenT1 > lenT0){
 					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.DOWNLOADING, statusDescription, -1, Launch.CONF_PARAM);
-					System.out.print("ThreadChecker status:             "+Launch.STATUS.getSentinelExtractorStatus()+"          ");
-					LogHelper.getInstance().handleVerboseLog(false, Constants.LOG, log, 'i', "ThreadChecker status:             "+Launch.STATUS.getSentinelExtractorStatus()+" | "+statusDescription);
+					//System.out.print("ThreadChecker status:             "+Launch.STATUS.getSentinelExtractorStatus()+"          ");
+					LogHelper.getInstance().handleVerboseLog(false, Constants.LOG, log, 'i', "ThreadChecker status:\t"+DownloadHelper.getInstance().formatDownloadedProgress(len, lenT1));
 				}
 				else if(len == lenT1 || len == lenT0){
 					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FINISHED, statusDescription, -1, Launch.CONF_PARAM);
