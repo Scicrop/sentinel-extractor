@@ -11,6 +11,7 @@ import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils;
 import com.scicrop.se.commons.utils.Constants;
 import com.scicrop.se.commons.utils.LogHelper;
+import com.scicrop.se.net.SeUdpClient;
 import com.scicrop.se.runtime.Launch;
 import com.scicrop.se.utils.DownloadHelper;
 
@@ -75,6 +76,10 @@ public class ThreadChecker extends Thread {
 				else if(lenT0 == lenT1){
 					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.STALLED, statusDescription, -1, Launch.CONF_PARAM);
 					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus()+"         FORCE QUITING!");
+					
+					SeUdpClient udpClient = new SeUdpClient(Constants.UDP_SERVER_PORT);
+					udpClient.sendMsgToUdpServer();
+					
 					System.exit(1);
 				} 
 

@@ -19,7 +19,7 @@ public class Launch {
 	public static void main(String[] args) {
 
 
-		System.out.println("\n\nSentinel Extractor Supervisor 0.0.1\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
+		System.out.println("\n\nSentinel Extractor Supervisor 0.0.2\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
 
 		if(null != args && args.length == 1){
 			File f = new File(args[0]);

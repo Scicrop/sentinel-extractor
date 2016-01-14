@@ -32,7 +32,7 @@ public class SeUdpServer extends Thread{
 		try {
 			serverSocket = new DatagramSocket(port);
 			byte[] receiveData = new byte[1024];
-			byte[] sendData = new byte[1024];
+
 			while(true)                {
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				serverSocket.receive(receivePacket);
@@ -50,10 +50,12 @@ public class SeUdpServer extends Thread{
 				}catch(Exception e){
 					e.printStackTrace();
 				}
-				//				String capitalizedSentence = sentence.toUpperCase();
-				//				sendData = capitalizedSentence.getBytes();
-				//				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-				//				serverSocket.send(sendPacket);
+				for (int i = 0; i < receiveData.length; i++) {
+					receiveData[i] = 0;
+				}
+				
+				receivePacket = null;
+				sentence = null;
 			}
 		} catch (SocketException e) {
 			e.printStackTrace();

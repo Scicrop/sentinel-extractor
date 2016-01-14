@@ -28,6 +28,7 @@ public class Constants {
 	public static final boolean VERBOSE = false;
 	public static final long THREAD_CHECKER_SLEEP = 15000;
 	public static final int SOCKET_TIMEOUT = 5000;
+	public static final int UDP_SERVER_PORT = 9001;
 
 	public static String user = "guest";
 	public static String password = "guest";

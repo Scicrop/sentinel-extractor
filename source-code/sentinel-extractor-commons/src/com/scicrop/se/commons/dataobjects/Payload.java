@@ -63,7 +63,7 @@ public class Payload {
 		sb.append(getPid());
 		sb.append(":");
 		sb.append(getConfParam());
-		
+		sb.append(":");
 		return sb.toString();
 	}
 	

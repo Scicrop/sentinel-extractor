@@ -6,6 +6,7 @@ import java.util.Scanner;
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.utils.Commons;
+import com.scicrop.se.commons.utils.Constants;
 import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.components.ActionBuilder;
 import com.scicrop.se.net.SeUdpClient;
@@ -21,8 +22,7 @@ public class Launch {
 	public static void main(String[] args) {
 
 
-		System.out.println("\n\nSentinel Extractor 0.2.0\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
-
+		
 		ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile();
 
 		if(args != null && args.length > 0 && args[0] !=null && (new File(args[0].trim()).exists()) && (new File(args[0].trim()).isFile())) {
@@ -34,7 +34,7 @@ public class Launch {
 			LogHelper.getInstance().setLogger(aHistory.getSocketPort());
 			
 
-				Thread t = new SeUdpClient(9001);
+				Thread t = new SeUdpClient(Constants.UDP_SERVER_PORT);
 				t.start();
 
 
@@ -42,8 +42,12 @@ public class Launch {
 			Thread actionBuilderThread = new ActionBuilderThread(aHistory);
 			actionBuilderThread.start();
 
-		}else{
+		}else if(args == null || args.length ==0){
 
+			
+			System.out.println("\n\nSentinel Extractor 0.2.1\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
+
+			
 			String clientUrl = null;
 			File oFolder = null;
 			Scanner keyboard = new Scanner(System.in);
@@ -109,6 +113,11 @@ public class Launch {
 
 
 
+		}else{
+			
+			System.err.println("Invalid parameters.");
+			System.exit(0);
+			
 		}
 
 
