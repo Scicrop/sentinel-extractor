@@ -27,7 +27,7 @@ import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.commons.utils.SentinelHttpConnectionException;
 import com.scicrop.se.commons.utils.SentinelRuntimeException;
 import com.scicrop.se.http.SeHttpAuthenticator;
-import com.scicrop.se.threads.ThreadChecker;
+import com.scicrop.se.threads.DownloaderThreadChecker;
 
 public class DownloadHelper {
 	
@@ -47,7 +47,7 @@ public class DownloadHelper {
 	
 	public EntryFileProperty getMd5ByteArrayFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password) throws SentinelRuntimeException{
 
-		ThreadChecker tChecker = new ThreadChecker(outputFileNamePath, completeFileSize);
+		DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outputFileNamePath, completeFileSize);
 
 		EntryFileProperty ret = null;
 		URL url = null;

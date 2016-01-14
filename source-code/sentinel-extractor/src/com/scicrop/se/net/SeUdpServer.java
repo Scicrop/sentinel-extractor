@@ -1,17 +1,16 @@
-package com.scicrop.ses.net;
+package com.scicrop.se.net;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils;
-import com.scicrop.ses.threads.SupervisorThreadChecker;
+import com.scicrop.se.threads.SupervisorThreadChecker;
 
 public class SeUdpServer extends Thread{
 

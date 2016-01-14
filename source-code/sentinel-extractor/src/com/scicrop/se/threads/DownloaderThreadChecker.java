@@ -16,7 +16,7 @@ import com.scicrop.se.net.SeUdpClient;
 import com.scicrop.se.runtime.Launch;
 import com.scicrop.se.utils.DownloadHelper;
 
-public class ThreadChecker extends Thread {
+public class DownloaderThreadChecker extends Thread {
 
 
 	private String outputFileNamePath = null;
@@ -24,9 +24,9 @@ public class ThreadChecker extends Thread {
 	private boolean forceStop = false;
 
 	
-	private static Log log = LogFactory.getLog(ThreadChecker.class);
+	private static Log log = LogFactory.getLog(DownloaderThreadChecker.class);
 
-	public ThreadChecker(String outputFileNamePath, long len){
+	public DownloaderThreadChecker(String outputFileNamePath, long len){
 
 		this.outputFileNamePath = outputFileNamePath;
 		this.len = len;

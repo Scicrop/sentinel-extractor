@@ -1,15 +1,21 @@
 package com.scicrop.se.runtime;
 
 import java.io.File;
+import java.util.List;
 import java.util.Scanner;
 
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.Payload;
+import com.scicrop.se.commons.dataobjects.ThreadDescriptorLstObject;
+import com.scicrop.se.commons.dataobjects.ThreadDescriptorObject;
+import com.scicrop.se.commons.threads.LauncherExtProcessThread;
 import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.Constants;
 import com.scicrop.se.commons.utils.LogHelper;
+import com.scicrop.se.commons.utils.XmlUtils;
 import com.scicrop.se.components.ActionBuilder;
 import com.scicrop.se.net.SeUdpClient;
+import com.scicrop.se.net.SeUdpServer;
 import com.scicrop.se.threads.ActionBuilderThread;
 
 
@@ -21,28 +27,79 @@ public class Launch {
 	
 	public static void main(String[] args) {
 
-
 		
-		ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile();
+		if(args!=null && args.length == 2){ //check if is non-interactive mode syntax
 
-		if(args != null && args.length > 0 && args[0] !=null && (new File(args[0].trim()).exists()) && (new File(args[0].trim()).isFile())) {
-
-			aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(args[0].trim());
+			System.out.println("Entering in a non-interative mode:");
 			
-			CONF_PARAM = args[0].trim();
+			if(args[0].equalsIgnoreCase("d") || args[0].equalsIgnoreCase("s")){ //check non-interactive mode syntax
+				
+				if(args[0].equalsIgnoreCase("d")){ //check if is non-interactive mode DOWNLOADER
+					
+					System.out.println("Non-interative mode: DOWNLOADER");
+					
+					if(args[1] !=null && (new File(args[1].trim()).exists()) && (new File(args[1].trim()).isFile())) {
 
-			LogHelper.getInstance().setLogger(aHistory.getSocketPort());
-			
+						ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(args[1].trim());
+						
+						CONF_PARAM = args[0].trim();
 
-				Thread t = new SeUdpClient(Constants.UDP_SERVER_PORT);
-				t.start();
+						LogHelper.getInstance().setLogger(aHistory.getSocketPort());
+						
 
+							Thread t = new SeUdpClient(Constants.UDP_SERVER_PORT);
+							t.start();
+						
+						Thread actionBuilderThread = new ActionBuilderThread(aHistory);
+						actionBuilderThread.start();
 
-			
-			Thread actionBuilderThread = new ActionBuilderThread(aHistory);
-			actionBuilderThread.start();
+					}			
+					
+				}else if(args[0].equalsIgnoreCase("s")){ //check if is non-interactive mode SUPERVISOR
+					
+					System.out.println("Non-interative mode: SUPERVISOR");
+					
+					File f = new File(args[1]);
 
-		}else if(args == null || args.length ==0){
+					if(f.exists() && f.isFile()){
+						
+						CONF_PARAM = args[1];
+						
+						ThreadDescriptorLstObject t = XmlUtils.getInstance().threadDescLst(f);
+						List<ThreadDescriptorObject> l = t.getThreadDescriptorLst();
+						for (ThreadDescriptorObject threadDescriptorObject : l) {
+
+							String confParam = threadDescriptorObject.getConfParam();
+							ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(confParam);
+
+							
+
+							File jarFile = new File(Constants.JAR_PATH);
+
+							if(jarFile.exists() && jarFile.isFile()){
+
+								Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, "d",confParam, "&"});
+								pThread.start();
+
+							}else{
+								System.out.println("Jar file "+Constants.JAR_PATH+" was not found.");
+								System.exit(0);
+							}
+
+							
+
+						}
+						
+						Thread procListenerThread = new SeUdpServer(Constants.UDP_SERVER_PORT);
+						procListenerThread.start();
+					}
+
+				}
+				
+				
+			}
+	
+		}else if(args == null || args.length ==0){ //check if is interactive mode
 
 			
 			System.out.println("\n\nSentinel Extractor 0.2.1\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
@@ -52,6 +109,8 @@ public class Launch {
 			File oFolder = null;
 			Scanner keyboard = new Scanner(System.in);
 
+			ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile();
+			
 			String hist = "";
 
 			if(aHistory != null) hist =  "["+aHistory.getUser()+"]";
@@ -113,15 +172,19 @@ public class Launch {
 
 
 
-		}else{
+		}else if(args!=null && (args.length == 1 || args.length > 3)){
 			
 			System.err.println("Invalid parameters.");
+			
+			if(args!=null && args.length > 0){
+				for (String string : args) {
+					System.out.println("args = "+string);
+				}
+			}
+			
 			System.exit(0);
 			
 		}
-
-
-
 
 	}
 

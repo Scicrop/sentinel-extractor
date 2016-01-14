@@ -10,11 +10,11 @@ import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
 import com.scicrop.se.commons.threads.LauncherExtProcessThread;
 import com.scicrop.se.commons.utils.Constants;
 
-public class ThreadChecker extends Thread {
+public class SupervisorThreadChecker extends Thread {
 	
 	private Map<String, Payload> clientsMap = null;
 
-	public ThreadChecker(Map<String, Payload> clientsMap){
+	public SupervisorThreadChecker(Map<String, Payload> clientsMap){
 		this.clientsMap = clientsMap;
 	}
 	

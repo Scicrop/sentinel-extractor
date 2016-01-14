@@ -3,6 +3,7 @@ package com.scicrop.se.utils;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Date;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
@@ -29,7 +30,7 @@ public class OpenSearchHelper {
 	
 	public Feed getFeed(String host, String clientUrl, String sentinel, String compl, String user, String password) throws IOException {
 
-		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.PROCESSING_QUERY, null, -1, Launch.CONF_PARAM);
+		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.PROCESSING_QUERY, null, -1, Launch.CONF_PARAM, new Date().getTime());
 
 		Abdera abdera = new Abdera();
 		Feed ret = null;
