@@ -1,7 +1,5 @@
 package com.scicrop.se.commons.dataobjects;
 
-import java.util.Date;
-
 import com.scicrop.se.commons.net.NetUtils;
 import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
 
@@ -11,7 +9,7 @@ public class Payload {
 	private String description = null;
 	private int pid = -1;
 	private String confParam = null;
-	private Date date = null;
+	private long date = -1l;
 	
 	public NetUtils.SentinelExtractorStatus getSentinelExtractorStatus() {
 		return sentinelExtractorStatus;
@@ -25,10 +23,10 @@ public class Payload {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Date getDate() {
+	public long getDate() {
 		return date;
 	}
-	public void setDate(Date date) {
+	public void setDate(long date) {
 		this.date = date;
 	}
 	public int getPid() {
@@ -44,12 +42,13 @@ public class Payload {
 		this.confParam = confParam;
 	}
 	
-	public Payload(SentinelExtractorStatus sentinelExtractorStatus, String description, int pid, String confParam) {
+	public Payload(SentinelExtractorStatus sentinelExtractorStatus, String description, int pid, String confParam, long date) {
 		super();
 		this.sentinelExtractorStatus = sentinelExtractorStatus;
 		this.description = description;
 		this.pid = pid;
 		this.confParam = confParam;
+		this.date = date;
 	}
 
 	
@@ -63,6 +62,8 @@ public class Payload {
 		sb.append(getPid());
 		sb.append(":");
 		sb.append(getConfParam());
+		sb.append(":");
+		sb.append(getDate());
 		sb.append(":");
 		return sb.toString();
 	}

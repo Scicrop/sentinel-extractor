@@ -3,6 +3,7 @@ package com.scicrop.se.threads;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +35,7 @@ public class ThreadChecker extends Thread {
 
 	public void forceStop(){
 		forceStop = true;
-		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FORCE_STOP, null, -1, Launch.CONF_PARAM);
+		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FORCE_STOP, null, -1, Launch.CONF_PARAM, new Date().getTime());
 		LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status:    "+Launch.STATUS.getSentinelExtractorStatus()+"                       ");
 	}
 
@@ -65,16 +66,16 @@ public class ThreadChecker extends Thread {
 				String statusDescription = outputFileNamePath+" | "+DownloadHelper.getInstance().formatDownloadedProgress(len, lenT1);
 
 				if(lenT1 > lenT0){
-					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.DOWNLOADING, statusDescription, -1, Launch.CONF_PARAM);
+					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.DOWNLOADING, statusDescription, -1, Launch.CONF_PARAM, new Date().getTime());
 					//System.out.print("ThreadChecker status:             "+Launch.STATUS.getSentinelExtractorStatus()+"          ");
 					LogHelper.getInstance().handleVerboseLog(false, Constants.LOG, log, 'i', "ThreadChecker status:\t"+DownloadHelper.getInstance().formatDownloadedProgress(len, lenT1));
 				}
 				else if(len == lenT1 || len == lenT0){
-					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FINISHED, statusDescription, -1, Launch.CONF_PARAM);
+					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FINISHED, statusDescription, -1, Launch.CONF_PARAM, new Date().getTime());
 					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus());
 				}
 				else if(lenT0 == lenT1){
-					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.STALLED, statusDescription, -1, Launch.CONF_PARAM);
+					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.STALLED, statusDescription, -1, Launch.CONF_PARAM, new Date().getTime());
 					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus()+"         FORCE QUITING!");
 					
 					SeUdpClient udpClient = new SeUdpClient(Constants.UDP_SERVER_PORT);

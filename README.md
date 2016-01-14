@@ -7,4 +7,12 @@ This project explores the resources offered at The Sentinels Scientific Data Hub
 
 The source-code is written in Java language. The main logic consists in Web Services consuption through Open Search and Open Data API, both implemented with specific libraries: Apache Abdera for Open Search and Apache Olingo for Open Data. The resulting software is an alternative for downloading Sentinel's data using wget, cUrl or dhusget script.
 
-One of the main advantages of Sentinel-Extractor software is the ability to resume interrupted downloads.
+Main advantages of Sentinel-Extractor software is are: 
+
+ - Command-Line Interface for dowloading through:
+  - Open Search queires;
+  - Product UUID;
+  - Interrupted downloads;
+ - Silent-mode for download based on configurarion file;
+ - Supervisor that can initiate and restart remote downloader instances:
+  - Downloader instances communicate with supervisor through UDP sockets;

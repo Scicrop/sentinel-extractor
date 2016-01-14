@@ -29,10 +29,12 @@ public class ThreadChecker extends Thread {
 			
 			Payload payload = clientsMap.get(element);
 			Date now = new Date();
-			long duration = now.getTime() - payload.getDate().getTime();
+			long duration = now.getTime() - payload.getDate();
 			System.out.println("Supervisor checking process "+element+" ["+String.valueOf(duration)+"] "+payload.getSentinelExtractorStatus());
-			if(duration > Constants.THREAD_CHECKER_SLEEP && payload.getSentinelExtractorStatus() == SentinelExtractorStatus.STALLED){
-				Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, payload.getConfParam(), "&"});
+			//duration > Constants.THREAD_CHECKER_SLEEP && 
+			if(payload.getSentinelExtractorStatus() == SentinelExtractorStatus.STALLED){
+				System.out.println("Time to restart...: "+element);
+				Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, element, "&"});
 				pThread.start();
 			}
 		}

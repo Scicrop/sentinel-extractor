@@ -30,9 +30,8 @@ public class NetUtils {
 		String[] sentenceSplit = sentence.split(":");
 
 		Payload payload = null; 
-		if(sentenceSplit != null && sentenceSplit.length == 5){
-			payload	=new Payload(NetUtils.SentinelExtractorStatus.valueOf(sentenceSplit[0]), sentenceSplit[1], Integer.parseInt(sentenceSplit[2]), sentenceSplit[3].trim());
-			payload.setDate(new Date());
+		if(sentenceSplit != null && sentenceSplit.length == 6){
+			payload	=new Payload(NetUtils.SentinelExtractorStatus.valueOf(sentenceSplit[0]), sentenceSplit[1], Integer.parseInt(sentenceSplit[2]), sentenceSplit[3].trim(), Long.parseLong(sentenceSplit[4]));
 		}
 		return payload;
 	}

@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +56,7 @@ public class SeUdpClient extends Thread {
 			InetAddress IPAddress = InetAddress.getByName("127.0.0.1");
 			byte[] sendData = new byte[1024];
 
-			String sentence = new Payload(SentinelExtractorStatus.STARTING, "", -1, Launch.CONF_PARAM).toString();
+			String sentence = new Payload(SentinelExtractorStatus.STARTING, "", -1, Launch.CONF_PARAM, new Date().getTime()).toString();
 			if(Launch.STATUS != null) sentence = Launch.STATUS.toString();
 			sendData = sentence.getBytes();
 			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
