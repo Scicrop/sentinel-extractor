@@ -107,7 +107,7 @@ public class OpenDataHelper {
 
 
 		int tries = 1;
-		int tryLimit = 3;
+		
 
 		while((entryFp == null ||  entryFp.getSize() != contentLength)){
 			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Try: "+tries);
@@ -123,7 +123,7 @@ public class OpenDataHelper {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				if(tries > tryLimit && (entryFp == null ||  entryFp.getSize() != contentLength)){
+				if(tries > Constants.DOWNLOAD_TRY_LIMIT && (entryFp == null ||  entryFp.getSize() != contentLength)){
 					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Skiping...");
 					break;
 				}
@@ -132,7 +132,7 @@ public class OpenDataHelper {
 
 		}
 
-		if(tries > tryLimit) LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Resuming tries for file "+fileName+" did not work.");
+		if(tries > Constants.DOWNLOAD_TRY_LIMIT) LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Resuming tries for file "+fileName+" did not work.");
 		else{
 			if(entryFp.getMd5Checksum().equalsIgnoreCase(hexChecksum)) LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Filename: "+fileName+ " downloaded and checked "+hexChecksum);
 			else LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Filename: "+fileName+ " downloaded [INVALID CHECKSUM]");

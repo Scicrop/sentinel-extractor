@@ -40,15 +40,22 @@ public class Launch {
 					
 					if(args[1] !=null && (new File(args[1].trim()).exists()) && (new File(args[1].trim()).isFile())) {
 
-						ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(args[1].trim());
+						CONF_PARAM = args[1].trim();
+								
+						ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(CONF_PARAM);
 						
-						CONF_PARAM = args[0].trim();
+						
 
 						LogHelper.getInstance().setLogger(aHistory.getSocketPort());
 						
-
-							Thread t = new SeUdpClient(Constants.UDP_SERVER_PORT);
-							t.start();
+							try {
+								Thread t = new SeUdpClient(Integer.parseInt(aHistory.getSocketPort()));
+								t.start();
+							} catch (NumberFormatException e) {
+								System.out.println("The socket port described in "+CONF_PARAM+" must be an integer.");
+								System.exit(0);
+							}
+							
 						
 						Thread actionBuilderThread = new ActionBuilderThread(aHistory);
 						actionBuilderThread.start();
@@ -78,7 +85,9 @@ public class Launch {
 
 							if(jarFile.exists() && jarFile.isFile()){
 
-								Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, "d",confParam, "&"});
+
+								
+								Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, "d",confParam});
 								pThread.start();
 
 							}else{

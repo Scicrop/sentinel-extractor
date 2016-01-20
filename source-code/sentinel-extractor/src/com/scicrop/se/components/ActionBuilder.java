@@ -184,7 +184,7 @@ public class ActionBuilder {
 
 			}
 
-			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "\n\nUUID LIST: \n");
+			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "UUID LIST: \n");
 
 			for(int e = 0; e < uuidLst.size(); e++){
 				LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', e+")\t"+uuidLst.get(e));

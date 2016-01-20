@@ -34,7 +34,7 @@ public class SupervisorThreadChecker extends Thread {
 			//duration > Constants.THREAD_CHECKER_SLEEP && 
 			if(payload.getSentinelExtractorStatus() == SentinelExtractorStatus.STALLED){
 				System.out.println("Time to restart...: "+element);
-				Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, "d", element, "&"});
+				Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, "d", element});
 				pThread.start();
 			}
 		}

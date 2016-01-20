@@ -39,21 +39,7 @@ public class XmlUtils {
 
 			doc.getDocumentElement().normalize();
 
-			NodeList nList = doc.getElementsByTagName("thread");
-
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-
-				Node nNode = nList.item(temp);
-
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-					Element eElement = (Element) nNode;
-
-					threadDescLst.add(new ThreadDescriptorObject(eElement.getAttribute("prop"), eElement.getAttribute("jarpath")));
-
-
-				}
-			}
+			threadDescLst = getElementsByDocAndTagName(doc, "thread");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -61,6 +47,29 @@ public class XmlUtils {
 		ret = new ThreadDescriptorLstObject(threadDescLst);
 		
 		return ret;
+	}
+
+	private ArrayList<ThreadDescriptorObject> getElementsByDocAndTagName(Document doc, String tagName) {
+		
+		ArrayList<ThreadDescriptorObject> threadDescLst =  new ArrayList<ThreadDescriptorObject>();
+		
+		NodeList nList = doc.getElementsByTagName(tagName);
+
+		for (int temp = 0; temp < nList.getLength(); temp++) {
+
+			Node nNode = nList.item(temp);
+
+			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+				Element eElement = (Element) nNode;
+
+				threadDescLst.add(new ThreadDescriptorObject(eElement.getAttribute("prop"), eElement.getAttribute("jarpath")));
+
+
+			}
+		}
+		
+		return threadDescLst;
 	}
 
 }
