@@ -1,8 +1,6 @@
 package com.scicrop.se.net;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -13,9 +11,9 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
-import com.scicrop.se.commons.utils.Constants;
 import com.scicrop.se.commons.utils.LogHelper;
 import com.scicrop.se.runtime.Launch;
 
@@ -25,25 +23,23 @@ public class SeUdpClient extends Thread {
 	private int port = -1;
 
 	private static Log log = LogFactory.getLog(SeUdpClient.class);
-
-	public SeUdpClient(int port) {
+	private static ArgumentsHistory aHistory = null;
+	
+	
+	public SeUdpClient(int port, ArgumentsHistory aHistory) {
 		this.port = port;
-
-
+		this.aHistory = aHistory;
 	}
 
 	public void run(){
-
 		while(true){
-
-
 			
 			sendMsgToUdpServer();
 			
 			try {
 				Thread.sleep(15000);
 			} catch (InterruptedException e) {
-				LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'e', e.getMessage());
+				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e.getMessage());
 			}
 		}
 
@@ -64,11 +60,11 @@ public class SeUdpClient extends Thread {
 
 			
 		} catch (SocketException e) {
-			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'e', e.getMessage());
+			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e.getMessage());
 		} catch (UnknownHostException e) {
-			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'e', e.getMessage());
+			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e.getMessage());
 		} catch (IOException e) {
-			LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'e', e.getMessage());
+			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e.getMessage());
 		}finally{
 			clientSocket.close();
 		}

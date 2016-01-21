@@ -8,6 +8,7 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils;
 import com.scicrop.se.commons.utils.Constants;
@@ -22,31 +23,23 @@ public class DownloaderThreadChecker extends Thread {
 	private String outputFileNamePath = null;
 	private long len = -1l;
 	private boolean forceStop = false;
-
-	
+	private ArgumentsHistory aHistory = null;
 	private static Log log = LogFactory.getLog(DownloaderThreadChecker.class);
 
-	public DownloaderThreadChecker(String outputFileNamePath, long len){
-
+	public DownloaderThreadChecker(String outputFileNamePath, long len, ArgumentsHistory aHistory){
 		this.outputFileNamePath = outputFileNamePath;
 		this.len = len;
-
+		this.aHistory = aHistory;
 	}
 
 	public void forceStop(){
 		forceStop = true;
 		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FORCE_STOP, null, -1, Launch.CONF_PARAM, new Date().getTime());
-		LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status:    "+Launch.STATUS.getSentinelExtractorStatus()+"                       ");
+		LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "ThreadChecker status:    "+Launch.STATUS.getSentinelExtractorStatus()+"                       ");
 	}
 
 	public void run(){
-
-		
-		
-
 		RandomAccessFile raf = null;
-
-
 
 		long lenT0 = -1l;
 		long lenT1 = -1l;
@@ -59,7 +52,7 @@ public class DownloaderThreadChecker extends Thread {
 				raf = new RandomAccessFile(outputFileNamePath, "r");
 				lenT0 = raf.length();
 
-				Thread.sleep(Constants.THREAD_CHECKER_SLEEP);
+				Thread.sleep(aHistory.getThreadCheckerSleep());
 
 				lenT1 = raf.length();
 				
@@ -68,15 +61,15 @@ public class DownloaderThreadChecker extends Thread {
 				if(lenT1 > lenT0){
 					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.DOWNLOADING, statusDescription, -1, Launch.CONF_PARAM, new Date().getTime());
 					//System.out.print("ThreadChecker status:             "+Launch.STATUS.getSentinelExtractorStatus()+"          ");
-					LogHelper.getInstance().handleVerboseLog(false, Constants.LOG, log, 'i', "ThreadChecker status:\t"+DownloadHelper.getInstance().formatDownloadedProgress(len, lenT1));
+					LogHelper.getInstance().handleVerboseLog(false, aHistory.isLog(), log, 'i', "ThreadChecker status:\t"+DownloadHelper.getInstance().formatDownloadedProgress(len, lenT1));
 				}
 				else if(len == lenT1 || len == lenT0){
 					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.FINISHED, statusDescription, -1, Launch.CONF_PARAM, new Date().getTime());
-					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus());
+					LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus());
 				}
 				else if(lenT0 == lenT1){
 					Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.STALLED, statusDescription, -1, Launch.CONF_PARAM, new Date().getTime());
-					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus()+"         FORCE QUITING!");
+					LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "ThreadChecker status: "+Launch.STATUS.getSentinelExtractorStatus()+"         FORCE QUITING!");
 					
 					SeUdpClient udpClient = new SeUdpClient(Constants.UDP_SERVER_PORT);
 					udpClient.sendMsgToUdpServer();
@@ -101,7 +94,7 @@ public class DownloaderThreadChecker extends Thread {
 			}
 
 		}
-		LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i', "ThreadChecker status: END OF ThreadChecker [FORCE STOP = "+forceStop+"]" );
+		LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "ThreadChecker status: END OF ThreadChecker [FORCE STOP = "+forceStop+"]" );
 
 
 

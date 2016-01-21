@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<supervisor jarpath="/tmp/se.jar">
-	<thread prop="/home/jdamico/test1.conf" />
-	<thread prop="/home/jdamico/test2.conf" />
+<supervisor jarpath="/tmp/se.jar" udp_server_port="10080">
+	<thread prop="/home/jdamico/test1.conf"/>
+	<thread prop="/home/jdamico/test2.conf"/>
 </supervisor>

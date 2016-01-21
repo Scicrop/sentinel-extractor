@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.odata2.api.commons.HttpStatusCodes;
 
+import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
 import com.scicrop.se.commons.utils.Commons;
 import com.scicrop.se.commons.utils.Constants;
@@ -45,9 +46,9 @@ public class DownloadHelper {
 
 
 	
-	public EntryFileProperty getMd5ByteArrayFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password) throws SentinelRuntimeException{
+	public EntryFileProperty getMd5ByteArrayFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password,ArgumentsHistory aHistory) throws SentinelRuntimeException{
 
-		DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outputFileNamePath, completeFileSize);
+		DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outputFileNamePath, completeFileSize,aHistory);
 
 		EntryFileProperty ret = null;
 		URL url = null;
@@ -76,7 +77,7 @@ public class DownloadHelper {
 				downloadedFileSize = outFile.length();
 
 				if(downloadedFileSize < completeFileSize){
-					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Incomplete download. Resuming.");
+					LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i',"Incomplete download. Resuming.");
 
 					connection.setRequestProperty("Range", "bytes=" + downloadedFileSize + "-");
 
@@ -85,7 +86,7 @@ public class DownloadHelper {
 						checkStatus(connection);
 						if(!tChecker.isAlive()) tChecker.start();
 					} catch (SentinelHttpConnectionException e) {
-						LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'e',"====> "+e.getMessage());
+						LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e',"====> "+e.getMessage());
 						return null;
 					}
 
@@ -108,18 +109,18 @@ public class DownloadHelper {
 
 						randomAccessfile.write(data, 0, bytesread);
 						downloadedFileSize += bytesread;
-						printDownloadedProgress(completeFileSize, downloadedFileSize);
+						printDownloadedProgress(completeFileSize, downloadedFileSize,aHistory);
 						
 
 					}
 
 
 				}else{
-					LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"File already downloaded.");
+					LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i',"File already downloaded.");
 				}
 			}else{
 
-				LogHelper.getInstance().handleVerboseLog(Constants.VERBOSE, Constants.LOG, log, 'i',"Starting download.");
+				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i',"Starting download.");
 				connection.connect();
 				try {
 					checkStatus(connection);
@@ -139,7 +140,7 @@ public class DownloadHelper {
 					bytesBuffered += bytesread;
 					downloadedFileSize += bytesread;
 
-					printDownloadedProgress(completeFileSize, downloadedFileSize);
+					printDownloadedProgress(completeFileSize, downloadedFileSize,aHistory);
 
 
 					if (bytesBuffered > 1024 * 1024) { //flush after 1MB
@@ -188,9 +189,9 @@ public class DownloadHelper {
 
 	}
 
-	public void printDownloadedProgress(long completeFileSize, long downloadedFileSize) {
+	public void printDownloadedProgress(long completeFileSize, long downloadedFileSize, ArgumentsHistory aHistory) {
 		
-		if(Constants.VERBOSE) System.out.print(formatDownloadedProgress(completeFileSize, downloadedFileSize)+"\r");
+		if(aHistory.isVerbose()) System.out.print(formatDownloadedProgress(completeFileSize, downloadedFileSize)+"\r");
 	}
 	
 	public String formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {

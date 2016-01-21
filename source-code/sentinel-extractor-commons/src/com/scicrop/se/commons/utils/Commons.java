@@ -197,7 +197,7 @@ public class Commons {
 	}
 
 
-	public void saveArgumentsHistory(String user, String outputFolder, String clientUrl, String sentinel, ArgumentsHistory oldAhistory) {
+	public void saveArgumentsHistory(String user, String outputFolder, String clientUrl, String sentinel, boolean log, boolean verbose, String logFolder,long threadCheckerSleep,int downloadTriesLimit, ArgumentsHistory oldAhistory) {
 
 		try {
 			if(oldAhistory != null){
@@ -206,14 +206,19 @@ public class Commons {
 				if(outputFolder == null) outputFolder = oldAhistory.getOutputFolder();
 				if(clientUrl == null) clientUrl = oldAhistory.getClientUrl();
 				if(sentinel == null) sentinel = oldAhistory.getSentinel();
+				log = oldAhistory.isLog();
+				verbose = oldAhistory.isVerbose();
+				downloadTriesLimit = oldAhistory.getDownloadTriesLimit();
+				if(logFolder == null) sentinel = oldAhistory.getLogFolder();
 
 			}else{
 				if(user == null) user = "";
 				if(outputFolder == null) outputFolder = "";
 				if(clientUrl == null) clientUrl = "";
 				if(sentinel == null) sentinel = "";
+				if(logFolder == null) logFolder = "";
 			}
-			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl, null, null);
+			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl, null, null,verbose,log,logFolder,threadCheckerSleep,downloadTriesLimit);
 			writeArgumentsHistoryPropertyFile(aHistory);
 		} catch (NullPointerException e) {
 			System.out.println("Impossible to write ArgumentsHistory property file.");
@@ -270,6 +275,19 @@ public class Commons {
 		return readArgumentsHistoryPropertyFile(filePath);
 	}
 
+	public double getJavaHomeVersion () {
+	    String version = System.getProperty("java.version");
+	    int pos = version.indexOf('.');
+	    pos = version.indexOf('.', pos+1);
+	    return Double.parseDouble (version.substring (0, pos));
+	}
+	public boolean hasJavaHome() {
+		boolean ret = false;
+	    String javaHome = System.getenv("JAVA_HOME");
+	    if(javaHome != null && !"".equals(javaHome.trim())) ret = true;
+	    return ret;
+	}
+	
 	public ArgumentsHistory readArgumentsHistoryPropertyFile(String filePath) {
 		ArgumentsHistory ret = null;
 
@@ -282,7 +300,18 @@ public class Commons {
 
 			prop.load(input);
 
-			ret = new ArgumentsHistory(prop.getProperty("user"), prop.getProperty("outputfolder"), prop.getProperty("sentinel"), prop.getProperty("clienturl"), prop.getProperty("socketport"), prop.getProperty("password"));
+			ret = new ArgumentsHistory(prop.getProperty("user"), 
+					prop.getProperty("outputfolder"), 
+					prop.getProperty("sentinel"), 
+					prop.getProperty("clienturl"), 
+					prop.getProperty("socketport"),
+					prop.getProperty("password"), 
+					Boolean.getBoolean(prop.getProperty("verbose")), 
+					Boolean.getBoolean(prop.getProperty("log")), 
+					prop.getProperty("logfolder"),
+					Long.parseLong(prop.getProperty("logfolder")),
+					Integer.parseInt(prop.getProperty("downloadtrieslimit"))
+				);
 
 
 		} catch (FileNotFoundException ex) {

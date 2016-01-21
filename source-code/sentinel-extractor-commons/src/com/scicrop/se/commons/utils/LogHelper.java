@@ -23,9 +23,9 @@ public class LogHelper {
 	}
 
 
-	public void setLogger(String logNamePattern){
+	public void setLogger(String logNamePattern, String logFolder){
 
-		String logPath = Constants.LOG_FOLDER + Constants.APP_NAME+"_"+logNamePattern+".log";
+		String logPath = logFolder + Constants.APP_NAME+"_"+logNamePattern+".log";
 
 		Logger rootLogger = Logger.getRootLogger();
 		rootLogger.setLevel(Level.INFO);
