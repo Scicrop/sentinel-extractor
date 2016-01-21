@@ -32,6 +32,12 @@ public class ArgumentsHistory {
 	
 	
 	
+	public ArgumentsHistory() {
+		// TODO Auto-generated constructor stub
+	}
+
+
+
 	public int getDownloadTriesLimit() {
 		return downloadTriesLimit;
 	}

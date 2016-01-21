@@ -36,9 +36,10 @@ public class ActionBuilder {
 		return INSTANCE;
 	}
 
-	public void manualSwitcher(ArgumentsHistory aHistory, String clientUrl, File oFolder, String user, String password, String sentinel, String outputFolder, String searchType, boolean verbose, boolean aLog, String logFolder, long threadCheckerSleep, int downloadTriesLimit) {
+	public void manualSwitcher(ArgumentsHistory aHistory, String searchType) {
 
 		Scanner keyboard = new Scanner(System.in);
+		String clientUrl = null;
 
 		String hist = null;
 
@@ -46,16 +47,18 @@ public class ActionBuilder {
 		case "1":
 
 			hist = "";
-			if(aHistory != null) hist =  "["+aHistory.getClientUrl()+"]";
-			System.out.println("Client url "+hist);
+			if(aHistory != null && aHistory.getClientUrl() != null) hist =  "["+aHistory.getClientUrl()+"]";
+			System.out.println("Client url: "+hist);
 
 			clientUrl = keyboard.nextLine();
 
 			if(clientUrl.equals("") && !hist.equals("")) clientUrl = aHistory.getClientUrl();
 
-			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, sentinel,aLog,verbose,logFolder,threadCheckerSleep,downloadTriesLimit, aHistory);
+			aHistory.setClientUrl(clientUrl);
+			
+			Commons.getInstance().writeArgumentsHistoryPropertyFile(aHistory);
 
-			processClientUrl(clientUrl, user, password, sentinel, outputFolder, aHistory);
+			processClientUrl(aHistory);
 
 			break;
 
@@ -65,10 +68,10 @@ public class ActionBuilder {
 			String uuid = keyboard.nextLine();
 
 
-			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, sentinel,aLog,verbose,logFolder,threadCheckerSleep,downloadTriesLimit, aHistory);
+			Commons.getInstance().writeArgumentsHistoryPropertyFile(aHistory);
 
 			try {
-				OpenDataHelper.getInstance().getEdmByUUID(uuid, user, password, outputFolder, sentinel,aHistory);
+				OpenDataHelper.getInstance().getEdmByUUID(uuid, aHistory);
 			} catch (SentinelRuntimeException e) {
 				e.printStackTrace();
 			}
@@ -78,9 +81,11 @@ public class ActionBuilder {
 			break;
 
 		case "3":
-			Commons.getInstance().saveArgumentsHistory(user, outputFolder, clientUrl, sentinel,aLog,verbose,logFolder,threadCheckerSleep,downloadTriesLimit, aHistory);
+			Commons.getInstance().writeArgumentsHistoryPropertyFile(aHistory);
 			try {
 
+				File oFolder = new File(aHistory.getOutputFolder());
+				
 				String[] content = oFolder.list(new FilenameFilter() {
 
 					@Override
@@ -113,16 +118,16 @@ public class ActionBuilder {
 
 					if(!content[i].equals(".ahistory.properties")){
 
-						EntryFileProperty value = Commons.getInstance().readEntryPropertyFile(new File(outputFolder + content[i]));
+						EntryFileProperty value = Commons.getInstance().readEntryPropertyFile(new File(aHistory.getOutputFolder() + content[i]));
 
-						File f = new File(outputFolder+ value.getName());
+						File f = new File(aHistory.getOutputFolder()+ value.getName());
 
 						if(f.length() < value.getSize()){
 
 							incompleteDownloadsCount++;
 
 							System.out.println("Resuming file ("+incompleteDownloadsCount+") "+value.getName()+ " ["+value.getUuid()+"]");
-							OpenDataHelper.getInstance().getEdmByUUID(value.getUuid(), user, password, outputFolder, sentinel,aHistory);
+							OpenDataHelper.getInstance().getEdmByUUID(value.getUuid(), aHistory);
 
 							found = true;
 						}
@@ -133,7 +138,7 @@ public class ActionBuilder {
 
 
 				if(!found){
-					System.out.println("There are no files to be resumed in: "+outputFolder);
+					System.out.println("There are no files to be resumed in: "+aHistory.getOutputFolder());
 				}
 
 			} catch (SentinelRuntimeException e) {
@@ -148,11 +153,11 @@ public class ActionBuilder {
 		}
 	}
 
-	private void processClientUrl(String clientUrl, String user, String password, String sentinel, String outputFolder, ArgumentsHistory aHistory) {
+	private void processClientUrl(ArgumentsHistory aHistory) {
 		Feed feed = null;
 		try {
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "Processing ...");
-			feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "", user, password);
+			feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, aHistory.getClientUrl(), aHistory.getSentinel(), "", aHistory.getUser(), aHistory.getPassword());
 
 			QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
 			QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
@@ -166,7 +171,7 @@ public class ActionBuilder {
 
 			for(int item = 0; item < tr; item++){
 				try{
-					feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, clientUrl, sentinel, "&start="+item+"&rows=10", user, password);
+					feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, aHistory.getClientUrl(), aHistory.getSentinel(), "&start="+item+"&rows=10",  aHistory.getUser(), aHistory.getPassword());
 					System.out.print("Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
 
 					LogHelper.getInstance().handleVerboseLog(false, aHistory.isLog(), log, 'i', "Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
@@ -192,7 +197,7 @@ public class ActionBuilder {
 
 			for(int e = 0; e < uuidLst.size(); e++){
 				try {
-					OpenDataHelper.getInstance().getEdmByUUID(uuidLst.get(e), user, password, outputFolder, sentinel,aHistory);
+					OpenDataHelper.getInstance().getEdmByUUID(uuidLst.get(e), aHistory);
 				} catch (SentinelRuntimeException se) {
 					se.printStackTrace();
 				}
@@ -205,7 +210,7 @@ public class ActionBuilder {
 	}
 
 	public void autoSearchDownload(ArgumentsHistory aHistory){
-		processClientUrl(aHistory.getClientUrl(), aHistory.getUser(), aHistory.getPassword(), aHistory.getSentinel(), aHistory.getOutputFolder(),aHistory);
+		processClientUrl(aHistory);
 	}
 
 }

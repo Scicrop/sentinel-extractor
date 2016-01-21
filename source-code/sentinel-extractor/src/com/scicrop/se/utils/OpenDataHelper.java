@@ -41,7 +41,7 @@ public class OpenDataHelper {
 
 
 
-	public void getEdmByUUID(String id, String user, String password, String outputFolder, String sentinel, ArgumentsHistory aHistory) throws SentinelRuntimeException {
+	public void getEdmByUUID(String id, ArgumentsHistory aHistory) throws SentinelRuntimeException {
 
 
 		InputStream content = null;
@@ -55,11 +55,11 @@ public class OpenDataHelper {
 		ODataEntry entry = null;
 
 		try {
-			content = DownloadHelper.getInstance().execute(Constants.COPERNICUS_ODATA_METALINK, Constants.APPLICATION_XML, Constants.HTTP_METHOD_GET, user, password);
+			content = DownloadHelper.getInstance().execute(Constants.COPERNICUS_ODATA_METALINK, Constants.APPLICATION_XML, Constants.HTTP_METHOD_GET,  aHistory.getUser(), aHistory.getPassword());
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "Open Data Metadata collected.");
 			edm = EntityProvider.readMetadata(content, false);
 			if(content !=null) content.close();
-			entry = readEntry(edm, Constants.COPERNICUS_ODATA_ROOT, Constants.APPLICATION_XML, "Products", id, "?platformname=Sentinel-"+sentinel, user, password);
+			entry = readEntry(edm, Constants.COPERNICUS_ODATA_ROOT, Constants.APPLICATION_XML, "Products", id, "?platformname=Sentinel-"+aHistory.getSentinel(),  aHistory.getUser(), aHistory.getPassword());
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "Open Data Entry collected.");
 
 
@@ -88,7 +88,7 @@ public class OpenDataHelper {
 
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "=========================================\n\n");
 
-			Commons.getInstance().writeEntryFilePropertyFile(new EntryFileProperty(fileName, hexChecksum, id, contentLength), outputFolder);
+			Commons.getInstance().writeEntryFilePropertyFile(new EntryFileProperty(fileName, hexChecksum, id, contentLength), aHistory.getOutputFolder());
 
 		} catch (SentinelHttpConnectionException e) {
 			e.printStackTrace();
@@ -112,7 +112,7 @@ public class OpenDataHelper {
 		while((entryFp == null ||  entryFp.getSize() != contentLength)){
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i',"Try: "+tries);
 
-			entryFp = DownloadHelper.getInstance().getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password,aHistory);
+			entryFp = DownloadHelper.getInstance().getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", fileName, contentLength, contentType, aHistory);
 
 			if(entryFp !=null && entryFp.getSize() == contentLength) break;
 			else{

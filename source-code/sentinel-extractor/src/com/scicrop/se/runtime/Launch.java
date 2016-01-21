@@ -183,10 +183,7 @@ public class Launch {
 
 
 
-				System.out.println("1) Open Search Query ");
-				System.out.println("2) Open Data Query (by UUID)");
-				System.out.println("3) Resume interrupted downloads");
-				String searchType = keyboard.nextLine();
+				
 
 
 				System.out.println("Enable verbose? [true]");
@@ -226,10 +223,26 @@ public class Launch {
 //				String sUdpPort = keyboard.nextLine();
 //				int udpPort = 10020;
 //				if(sDownload != null || !sDownload.equals("")) udpPort = Integer.parseInt(sUdpPort);
-
-				keyboard.close();
 				
-				ActionBuilder.getInstance().manualSwitcher(aHistory, clientUrl, oFolder, user, password, sentinel, outputFolder, searchType,verbose,log,logFolder,threadCheckerSleep,downloadTriesLimit);
+				
+				System.out.println("1) Open Search Query ");
+				System.out.println("2) Open Data Query (by UUID)");
+				System.out.println("3) Resume interrupted downloads");
+				String searchType = keyboard.nextLine();
+
+				if(aHistory == null) aHistory = new ArgumentsHistory();
+				
+				aHistory.setUser(user);
+				aHistory.setPassword(password);
+				aHistory.setOutputFolder(outputFolder);
+				aHistory.setDownloadTriesLimit(downloadTriesLimit);
+				aHistory.setLog(log);
+				aHistory.setVerbose(verbose);
+				aHistory.setThreadCheckerSleep(threadCheckerSleep);
+				aHistory.setSentinel(sentinel);
+				aHistory.setLogFolder(logFolder);
+				
+				ActionBuilder.getInstance().manualSwitcher(aHistory, searchType);
 
 
 

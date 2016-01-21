@@ -197,39 +197,10 @@ public class Commons {
 	}
 
 
-	public void saveArgumentsHistory(String user, String outputFolder, String clientUrl, String sentinel, boolean log, boolean verbose, String logFolder,long threadCheckerSleep,int downloadTriesLimit, ArgumentsHistory oldAhistory) {
-
-		try {
-			if(oldAhistory != null){
-
-				if(user == null) user = oldAhistory.getUser();
-				if(outputFolder == null) outputFolder = oldAhistory.getOutputFolder();
-				if(clientUrl == null) clientUrl = oldAhistory.getClientUrl();
-				if(sentinel == null) sentinel = oldAhistory.getSentinel();
-				log = oldAhistory.isLog();
-				verbose = oldAhistory.isVerbose();
-				downloadTriesLimit = oldAhistory.getDownloadTriesLimit();
-				if(logFolder == null) sentinel = oldAhistory.getLogFolder();
-
-			}else{
-				if(user == null) user = "";
-				if(outputFolder == null) outputFolder = "";
-				if(clientUrl == null) clientUrl = "";
-				if(sentinel == null) sentinel = "";
-				if(logFolder == null) logFolder = "";
-			}
-			ArgumentsHistory aHistory = new ArgumentsHistory(user, outputFolder, sentinel, clientUrl, null, null,verbose,log,logFolder,threadCheckerSleep,downloadTriesLimit);
-			writeArgumentsHistoryPropertyFile(aHistory);
-		} catch (NullPointerException e) {
-			System.out.println("Impossible to write ArgumentsHistory property file.");
-			e.printStackTrace();
-		}
-		
-		
-	}
 
 
-	private void writeArgumentsHistoryPropertyFile(ArgumentsHistory aHistory) {
+
+	public void writeArgumentsHistoryPropertyFile(ArgumentsHistory aHistory) {
 		String userDir = System.getProperty("user.dir") + "/";
 		Properties prop = new Properties();
 		OutputStream output = null;
@@ -308,6 +279,23 @@ public class Commons {
 
 			prop.load(input);
 
+			long threadcheckersleep = 1000l;
+			int downloadtrieslimit = 5;
+			
+			try{
+				threadcheckersleep = Long.parseLong(prop.getProperty("threadcheckersleep"));
+			}catch(NumberFormatException nfe){
+				System.out.println("Failed trying to read threadcheckersleep property from: "+filePath);
+			}
+			
+			try{
+				downloadtrieslimit = Integer.parseInt(prop.getProperty("downloadtrieslimit"));
+			}catch(NumberFormatException nfe){
+				
+				System.out.println("Failed trying to read downloadtrieslimit property from: "+filePath);
+			}
+			
+			
 			ret = new ArgumentsHistory(prop.getProperty("user"), 
 					prop.getProperty("outputfolder"), 
 					prop.getProperty("sentinel"), 
@@ -317,8 +305,8 @@ public class Commons {
 					Boolean.getBoolean(prop.getProperty("verbose")), 
 					Boolean.getBoolean(prop.getProperty("log")), 
 					prop.getProperty("logfolder"),
-					Long.parseLong(prop.getProperty("threadcheckersleep")),
-					Integer.parseInt(prop.getProperty("downloadtrieslimit"))
+					threadcheckersleep,
+					downloadtrieslimit
 				);
 
 

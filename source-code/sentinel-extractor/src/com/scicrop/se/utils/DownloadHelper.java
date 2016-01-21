@@ -46,8 +46,10 @@ public class DownloadHelper {
 
 
 	
-	public EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password,ArgumentsHistory aHistory) throws SentinelRuntimeException{
+	public EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, String fileName, long completeFileSize, String contentType, ArgumentsHistory aHistory) throws SentinelRuntimeException{
 
+		String outputFileNamePath = aHistory.getOutputFolder()+fileName;
+		
 		DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outputFileNamePath, completeFileSize, aHistory);
 
 		EntryFileProperty ret = null;
@@ -65,7 +67,7 @@ public class DownloadHelper {
 
 		try {
 
-			Authenticator.setDefault(new SeHttpAuthenticator(user, password));
+			Authenticator.setDefault(new SeHttpAuthenticator(aHistory.getUser(), aHistory.getPassword()));
 			url = new URL(urlStr);
 			connection = (HttpsURLConnection) url.openConnection();
 
