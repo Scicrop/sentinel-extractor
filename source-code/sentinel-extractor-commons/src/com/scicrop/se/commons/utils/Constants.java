@@ -22,6 +22,8 @@ public class Constants {
 	public static final int BUFFER_SIZE = 8192;
 	
 	public static final String APP_NAME = "sentinel-extractor";
+	public static final String APP_VERSION = "0.3.0";
+	public static final double JAVA_VERSION_COMPLIANCE = 1.7d;
 	
 	
 

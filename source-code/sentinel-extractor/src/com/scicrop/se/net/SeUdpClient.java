@@ -23,7 +23,7 @@ public class SeUdpClient extends Thread {
 	private int port = -1;
 
 	private static Log log = LogFactory.getLog(SeUdpClient.class);
-	private static ArgumentsHistory aHistory = null;
+	private ArgumentsHistory aHistory = null;
 	
 	
 	public SeUdpClient(int port, ArgumentsHistory aHistory) {

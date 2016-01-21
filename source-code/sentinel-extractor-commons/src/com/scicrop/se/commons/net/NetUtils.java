@@ -1,7 +1,5 @@
 package com.scicrop.se.commons.net;
 
-import java.util.Date;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -8,14 +8,16 @@ import java.util.Set;
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils.SentinelExtractorStatus;
 import com.scicrop.se.commons.threads.LauncherExtProcessThread;
-import com.scicrop.se.commons.utils.Constants;
+import com.scicrop.se.runtime.Launch;
 
 public class SupervisorThreadChecker extends Thread {
 	
 	private Map<String, Payload> clientsMap = null;
+	private String jarPath = null;
 
-	public SupervisorThreadChecker(Map<String, Payload> clientsMap){
+	public SupervisorThreadChecker(Map<String, Payload> clientsMap, String jarPath){
 		this.clientsMap = clientsMap;
+		this.jarPath = jarPath;
 	}
 	
 	public void run(){
@@ -34,7 +36,7 @@ public class SupervisorThreadChecker extends Thread {
 			//duration > Constants.THREAD_CHECKER_SLEEP && 
 			if(payload.getSentinelExtractorStatus() == SentinelExtractorStatus.STALLED){
 				System.out.println("Time to restart...: "+element);
-				Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", Constants.JAR_PATH, "d", element});
+				Thread pThread = new LauncherExtProcessThread(new String[]{Launch.JAVA_HOME!=null ? Launch.JAVA_HOME+"java":"java","-jar", jarPath, "d", element});
 				pThread.start();
 			}
 		}

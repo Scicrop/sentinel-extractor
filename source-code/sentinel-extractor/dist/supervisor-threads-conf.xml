@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<supervisor jarpath="" udp_server_port="">
-	<thread prop="/tmp/test1.conf" />
-	<thread prop="/tmp/test2.conf" />
-</supervisor>

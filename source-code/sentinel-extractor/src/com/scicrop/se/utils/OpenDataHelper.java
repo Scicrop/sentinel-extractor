@@ -1,6 +1,5 @@
 package com.scicrop.se.utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -113,7 +112,7 @@ public class OpenDataHelper {
 		while((entryFp == null ||  entryFp.getSize() != contentLength)){
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i',"Try: "+tries);
 
-			entryFp = DownloadHelper.getInstance().getMd5ByteArrayFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password,aHistory);
+			entryFp = DownloadHelper.getInstance().getEntryFilePropertyFromUrlString("https://scihub.copernicus.eu/dhus/odata/v1/Products('"+id+"')/$value?platformname=Sentinel-2", outputFolder+fileName, contentLength, contentType, user, password,aHistory);
 
 			if(entryFp !=null && entryFp.getSize() == contentLength) break;
 			else{
@@ -147,8 +146,7 @@ public class OpenDataHelper {
 		EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();
 
 		InputStream content = null;
-		InputStream copy = null;
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
 		ODataEntry ode = null;
 		try {
 			//content = Commons.getInstance().execute(serviceUri + entitySetName + "('"+keyValue+"')" + params, contentType, Constants.HTTP_METHOD_GET, user, password);

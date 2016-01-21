@@ -281,10 +281,18 @@ public class Commons {
 	    pos = version.indexOf('.', pos+1);
 	    return Double.parseDouble (version.substring (0, pos));
 	}
-	public boolean hasJavaHome() {
-		boolean ret = false;
-	    String javaHome = System.getenv("JAVA_HOME");
-	    if(javaHome != null && !"".equals(javaHome.trim())) ret = true;
+	public String getJavaHome() throws SentinelRuntimeException {
+		String ret = null;
+	    ret = System.getenv("JAVA_HOME");
+	    
+	    File f = new File(ret);
+	    
+	    if(f != null && f.exists() && f.isDirectory()){
+	    	if(ret.charAt(ret.length()-1) != '/') ret = ret + "/";
+	    } else throw new SentinelRuntimeException("JAVA_HOME is not a valid directory: "+ret);
+	    
+	    
+	    
 	    return ret;
 	}
 	
@@ -309,7 +317,7 @@ public class Commons {
 					Boolean.getBoolean(prop.getProperty("verbose")), 
 					Boolean.getBoolean(prop.getProperty("log")), 
 					prop.getProperty("logfolder"),
-					Long.parseLong(prop.getProperty("logfolder")),
+					Long.parseLong(prop.getProperty("threadcheckersleep")),
 					Integer.parseInt(prop.getProperty("downloadtrieslimit"))
 				);
 

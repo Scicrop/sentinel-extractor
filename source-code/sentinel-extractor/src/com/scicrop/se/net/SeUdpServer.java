@@ -3,13 +3,13 @@ package com.scicrop.se.net;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils;
+import com.scicrop.se.runtime.Launch;
 import com.scicrop.se.threads.SupervisorThreadChecker;
 
 public class SeUdpServer extends Thread{
@@ -38,13 +38,13 @@ public class SeUdpServer extends Thread{
 				String sentence = new String( receivePacket.getData());
 
 				System.out.println("RECEIVED: " + sentence);
-				InetAddress IPAddress = receivePacket.getAddress();
-				int port = receivePacket.getPort();
+//				InetAddress IPAddress = receivePacket.getAddress();
+//				int port = receivePacket.getPort();
 
 				try{
 					Payload payload = NetUtils.getInstance().handleProtocol(sentence);
 					clientsMap.put(payload.getConfParam(), payload);
-					Thread t = new SupervisorThreadChecker(clientsMap);
+					Thread t = new SupervisorThreadChecker(clientsMap, Launch.JAR_PATH);
 					t.start();
 				}catch(Exception e){
 					e.printStackTrace();

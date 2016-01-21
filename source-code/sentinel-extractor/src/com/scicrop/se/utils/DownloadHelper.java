@@ -46,9 +46,9 @@ public class DownloadHelper {
 
 
 	
-	public EntryFileProperty getMd5ByteArrayFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password,ArgumentsHistory aHistory) throws SentinelRuntimeException{
+	public EntryFileProperty getEntryFilePropertyFromUrlString(String urlStr, String outputFileNamePath, long completeFileSize, String contentType, String user, String password,ArgumentsHistory aHistory) throws SentinelRuntimeException{
 
-		DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outputFileNamePath, completeFileSize,aHistory);
+		DownloaderThreadChecker tChecker = new DownloaderThreadChecker(outputFileNamePath, completeFileSize, aHistory);
 
 		EntryFileProperty ret = null;
 		URL url = null;
@@ -99,8 +99,7 @@ public class DownloadHelper {
 
 					in = connection.getInputStream();
 
-					int logStep = 0;
-					
+										
 					long downloadDiff = completeFileSize - downloadedFileSize;
 					if (downloadDiff > Constants.BUFFER_SIZE) data = new byte[Constants.BUFFER_SIZE];
 					else data = new byte[(int) downloadDiff];

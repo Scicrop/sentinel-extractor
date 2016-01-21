@@ -10,7 +10,9 @@ import com.scicrop.se.commons.dataobjects.SupervisorXmlObject;
 import com.scicrop.se.commons.dataobjects.ThreadDescriptorObject;
 import com.scicrop.se.commons.threads.LauncherExtProcessThread;
 import com.scicrop.se.commons.utils.Commons;
+import com.scicrop.se.commons.utils.Constants;
 import com.scicrop.se.commons.utils.LogHelper;
+import com.scicrop.se.commons.utils.SentinelRuntimeException;
 import com.scicrop.se.commons.utils.XmlUtils;
 import com.scicrop.se.components.ActionBuilder;
 import com.scicrop.se.net.SeUdpClient;
@@ -23,10 +25,13 @@ public class Launch {
 
 	public static Payload STATUS = null;
 	public static String CONF_PARAM = null;
-
+	public static String JAR_PATH = null;
+	public static int UDP_SERVER_PORT = -1;
+	public static String JAVA_HOME = null;
+	
 	public static void main(String[] args) {
 		
-		if(Commons.getInstance().getJavaHomeVersion() >= 1.7d){
+		if(Commons.getInstance().getJavaHomeVersion() >= Constants.JAVA_VERSION_COMPLIANCE){
 
 			if(args!=null && args.length == 2){ //check if is non-interactive mode syntax
 
@@ -73,18 +78,27 @@ public class Launch {
 							CONF_PARAM = args[1];
 
 							SupervisorXmlObject t = XmlUtils.getInstance().xmlFile2Object(f);
+							
+							UDP_SERVER_PORT = t.getUdpPort();
+							
 							List<ThreadDescriptorObject> l = t.getThreadDescriptorLst();
 
 							for (ThreadDescriptorObject threadDescriptorObject : l) {
 
 								String confParam = threadDescriptorObject.getConfParam();
-								ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(confParam);
+								
 
 								File jarFile = new File(t.getJarPath());
 
 								if(jarFile.exists() && jarFile.isFile()){
 
-									Thread pThread = new LauncherExtProcessThread(new String[]{"java","-jar", t.getJarPath(), "d",confParam});
+									JAR_PATH = t.getJarPath();
+									try {
+										JAVA_HOME = Commons.getInstance().getJavaHome();
+									} catch (SentinelRuntimeException e) {
+										System.out.println(e.getMessage());
+									}
+									Thread pThread = new LauncherExtProcessThread(new String[]{JAVA_HOME!=null ? JAVA_HOME+"java":"java","-jar", JAR_PATH, "d",confParam});
 									pThread.start();
 
 								}else{
@@ -108,7 +122,7 @@ public class Launch {
 			}else if(args == null || args.length ==0){ //check if is interactive mode
 
 
-				System.out.println("\n\nSentinel Extractor 0.2.1\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
+				System.out.println("\n\n"+Constants.APP_NAME+" "+Constants.APP_VERSION+"\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
 
 
 				String clientUrl = null;
@@ -196,6 +210,7 @@ public class Launch {
 
 
 				System.out.println("How much time (millis) the supervisor will check the thread status: [1000]");
+				
 				String millis = keyboard.nextLine();
 				long threadCheckerSleep = 1000l;
 				if(millis != null || !millis.equals("")) threadCheckerSleep = Long.parseLong(millis);
@@ -207,11 +222,13 @@ public class Launch {
 				if(sDownload != null || !sDownload.equals("")) downloadTriesLimit = Integer.parseInt(sDownload);
 
 
-				System.out.println("UDP Port? [10020] ");
-				String sUdpPort = keyboard.nextLine();
-				int udpPort = 10020;
-				if(sDownload != null || !sDownload.equals("")) udpPort = Integer.parseInt(sUdpPort);
+//				System.out.println("UDP Port? [10020] ");
+//				String sUdpPort = keyboard.nextLine();
+//				int udpPort = 10020;
+//				if(sDownload != null || !sDownload.equals("")) udpPort = Integer.parseInt(sUdpPort);
 
+				keyboard.close();
+				
 				ActionBuilder.getInstance().manualSwitcher(aHistory, clientUrl, oFolder, user, password, sentinel, outputFolder, searchType,verbose,log,logFolder,threadCheckerSleep,downloadTriesLimit);
 
 
