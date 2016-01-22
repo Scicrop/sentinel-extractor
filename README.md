@@ -10,10 +10,10 @@ The source-code is written in Java language. The main logic consists in Web Serv
 Main advantages of Sentinel-Extractor software is are: 
 
  - Command-Line Interface for dowloading through:
-  - Open Search queires;
+  - Open Search queries;
   - Product UUID;
   - Interrupted downloads;
- - Silent-mode for download based on configurarion file;
+ - Silent-mode for download based on configurarion file (Downloader);
  - Supervisor that can initiate and restart remote downloader instances:
   - Downloader instances communicate with supervisor through UDP sockets;
 
@@ -25,12 +25,12 @@ Main advantages of Sentinel-Extractor software is are:
   $java -jar se.jar
   ```
    - In this mode the user will be asked to inform:
-     - User
-     - Password
-     - Sentinel satellite
-     - Output folder
-     - How much time (milliseconds) the downloader should wait for before kill a stalled connection
-     - How much tries will try the download
+     - User (based on registration at https://scihub.copernicus.eu/dhus);
+     - Password (based on registration at https://scihub.copernicus.eu/dhus);
+     - Sentinel satellite (Integer: 1 or 2);
+     - Output folder (The place where the download will be stored. For Windows, use this pattern: C:/dir/subdir/);
+     - How much time (milliseconds) the downloader should wait for before kill a stalled connection (>= 60000 for <= 50 Mbps connections);
+     - How much tries will try the download (Integer: Default is 5);
      - How to download:
        - (1) Open Search Query: 
          - Example: https://scihub.copernicus.eu/dhus/search?q=footprint:%22Intersects(POLYGON((-4.53%2029.85,26.75%2029.85,26.75%2046.80,-4.53%2046.80,-4.53%2029.85)))%22&$filter=substringof(20151221T164815_,Name)
