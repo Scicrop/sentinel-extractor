@@ -16,3 +16,32 @@ Main advantages of Sentinel-Extractor software is are:
  - Silent-mode for download based on configurarion file;
  - Supervisor that can initiate and restart remote downloader instances:
   - Downloader instances communicate with supervisor through UDP sockets;
+
+## How to use ##
+
+ - Interactive mode:
+  ```
+  $java -jar se.jar
+  ```
+   - In this mode the user will be asked to inform:
+     - User
+     - Password
+     - Sentinel satellite
+     - Output folder
+     - How much time (milliseconds) the downloader should wait for before kill a stalled connection
+     - How much tries will try the download
+     - How to download:
+       - (1) Open Search Query 
+        - (2) Open Data Query (by UUID)
+        - (3) Resume interrupted downloads
+      
+ - No-interactive mode:
+   - Downloader:
+   ```
+   $java -jar se.jar d downloader-file.properties
+   ```
+   - Supervisor:
+   ```
+   $java -jar se.jar s supervisor-file.xml
+   ```
+ 
