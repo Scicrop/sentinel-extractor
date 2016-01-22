@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
@@ -89,24 +90,29 @@ public class XmlUtils {
 		return threadDescLst;
 	}
 
-	public SupervisorXmlObject xmlFile2Object(File f) {
-		SupervisorXmlObject ret = new SupervisorXmlObject();
-		try{
-			Document d = xmlFile2xmlDocument(f);
+	public SupervisorXmlObject xmlFile2Object(File f) throws SentinelRuntimeException {
+		SupervisorXmlObject ret = null;
+
+		Document d = null;
+		try {
+			ret = new SupervisorXmlObject();
+			d = xmlFile2xmlDocument(f);
 			XPathFactory xPathfactory = XPathFactory.newInstance();
 			XPath xpath = xPathfactory.newXPath();
-			
 			XPathExpression expr = xpath.compile("/supervisor/@jarpath");
 			ret.setJarPath(String.valueOf(expr.evaluate(d, XPathConstants.STRING)));
-			
 			expr = xpath.compile("/supervisor/@udp_server_port");
 			ret.setUdpPort(Integer.parseInt(String.valueOf(expr.evaluate(d, XPathConstants.STRING))));
-			
 			ret.setThreadDescriptorLstObject(threadDescLst(f));
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			throw new SentinelRuntimeException(e);
+		} catch (XPathExpressionException e) {
+			throw new SentinelRuntimeException(e);
 		}
+
+
+
 		return ret;
 	}
 

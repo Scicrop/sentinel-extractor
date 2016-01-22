@@ -201,6 +201,22 @@ public class Commons {
 
 
 	public void writeArgumentsHistoryPropertyFile(ArgumentsHistory aHistory) {
+		
+		/**
+		 * user=guest
+			password=guest
+			outputfolder=/tmp 
+			sentinel=1 
+			clienturl=https\://scihub.copernicus.eu/dhus/search?q\=( footprint\:"Intersects(POLYGON((-76.3414718174573 -32.856332574865085,-30.509495780872072 -32.856332574865085,-30.509495780872072 3.9403723089632052,-76.3414718174573 3.9403723089632052,-76.3414718174573 -32.856332574865085)))" ) AND ( beginPosition\:[2015-09-01T00\:00\:00.000Z TO 2015-12-30T23\:59\:59.999Z] AND endPosition\:[2015-09-01T00\:00\:00.000Z TO 2015-12-30T23\:59\:59.999Z] ) AND (platformname\:Sentinel-1 AND producttype\:SLC AND sensoroperationalmode\:IW) 
+			socketport=9001
+			verbose=no
+			log=yes
+			logfolder= /tmp/
+			threadcheckersleep=60000
+			downloadtrieslimit=100
+		 */
+		
+		
 		String userDir = System.getProperty("user.dir") + "/";
 		Properties prop = new Properties();
 		OutputStream output = null;
@@ -219,6 +235,9 @@ public class Commons {
 			prop.setProperty("outputfolder", aHistory.getOutputFolder());
 			prop.setProperty("clienturl", aHistory.getClientUrl());
 			prop.setProperty("sentinel", aHistory.getSentinel());
+			
+			prop.setProperty("threadcheckersleep", String.valueOf(aHistory.getThreadCheckerSleep()));
+			prop.setProperty("downloadtrieslimit", String.valueOf(aHistory.getDownloadTriesLimit()));
 
 			prop.store(output, null);
 

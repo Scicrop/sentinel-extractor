@@ -1,6 +1,7 @@
 package com.scicrop.se.utils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Date;
@@ -12,14 +13,22 @@ import org.apache.abdera.protocol.Response.ResponseType;
 import org.apache.abdera.protocol.client.AbderaClient;
 import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils;
+import com.scicrop.se.commons.utils.LogHelper;
+import com.scicrop.se.commons.utils.SentinelRuntimeException;
+import com.scicrop.se.components.ActionBuilder;
 import com.scicrop.se.runtime.Launch;
 
 public class OpenSearchHelper {
 	
 	private OpenSearchHelper(){}
+	
+	private static Log log = LogFactory.getLog(ActionBuilder.class);
 	
 	private static OpenSearchHelper INSTANCE = null;
 	
@@ -28,7 +37,7 @@ public class OpenSearchHelper {
 		return INSTANCE;
 	}
 	
-	public Feed getFeed(String host, String clientUrl, String sentinel, String compl, String user, String password) throws IOException {
+	public Feed getFeed(String host, String compl, ArgumentsHistory aHistory) throws SentinelRuntimeException {
 
 		Launch.STATUS = new Payload(NetUtils.SentinelExtractorStatus.PROCESSING_QUERY, null, -1, Launch.CONF_PARAM, new Date().getTime());
 
@@ -38,7 +47,7 @@ public class OpenSearchHelper {
 		client.usePreemptiveAuthentication(true);
 
 		try {
-			client.addCredentials(host,  null, null,  new UsernamePasswordCredentials(user, password));
+			client.addCredentials(host,  null, null,  new UsernamePasswordCredentials(aHistory.getUser(), aHistory.getPassword()));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
@@ -51,14 +60,20 @@ public class OpenSearchHelper {
 		
 		int end = 43;
 		
-		clientUrl= clientUrl + sentinel+compl;
+		String clientUrl = aHistory.getClientUrl();
+		
+		clientUrl = clientUrl + aHistory.getSentinel()+compl;
 		
 		String init = clientUrl.substring(0, end);
 		String last  = clientUrl.substring(end);
 		
 		
 		
-		clientUrl = init + URLEncoder.encode(last, "UTF-8");
+		try {
+			clientUrl = init + URLEncoder.encode(last, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new SentinelRuntimeException(e);
+		}
 		
 		
 		
@@ -67,7 +82,7 @@ public class OpenSearchHelper {
 			Document<Feed> doc = resp.getDocument();
 			ret = doc.getRoot();			
 		} else {
-			System.out.println("error");
+			throw new SentinelRuntimeException("Wrong response from an OpenSearch query: "+resp.getType()+" ["+resp.getStatus()+"]");
 		}	
 		
 		

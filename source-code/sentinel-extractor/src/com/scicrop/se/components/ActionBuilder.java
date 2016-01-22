@@ -151,13 +151,15 @@ public class ActionBuilder {
 
 			break;
 		}
+		
+		keyboard.close();
 	}
 
 	private void processClientUrl(ArgumentsHistory aHistory) {
 		Feed feed = null;
 		try {
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "Processing ...");
-			feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, aHistory.getClientUrl(), aHistory.getSentinel(), "", aHistory.getUser(), aHistory.getPassword());
+			feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, "", aHistory);
 
 			QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
 			QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
@@ -171,7 +173,7 @@ public class ActionBuilder {
 
 			for(int item = 0; item < tr; item++){
 				try{
-					feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, aHistory.getClientUrl(), aHistory.getSentinel(), "&start="+item+"&rows=10",  aHistory.getUser(), aHistory.getPassword());
+					feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, "&start="+item+"&rows=10",  aHistory);
 					System.out.print("Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
 
 					LogHelper.getInstance().handleVerboseLog(false, aHistory.isLog(), log, 'i', "Paging results: \t "+item+"/"+tr+" - \t UUID collected: "+uuidLst.size()+"\r");
@@ -203,9 +205,9 @@ public class ActionBuilder {
 				}
 			}
 
-
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			
+		} catch (SentinelRuntimeException e1) {
+			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1.getMessage());
 		}
 	}
 

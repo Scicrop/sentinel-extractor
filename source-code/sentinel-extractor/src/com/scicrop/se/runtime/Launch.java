@@ -49,9 +49,9 @@ public class Launch {
 
 							ArgumentsHistory aHistory = Commons.getInstance().readArgumentsHistoryPropertyFile(CONF_PARAM);
 
+							String logPattern = CONF_PARAM.replaceAll("\\/", "_").replaceAll("\\.", "_");
 
-
-							LogHelper.getInstance().setLogger(aHistory.getSocketPort(), aHistory.getLogFolder());
+							LogHelper.getInstance().setLogger(logPattern, aHistory.getLogFolder());
 
 							try {
 								Thread t = new SeUdpClient(Integer.parseInt(aHistory.getSocketPort()),aHistory);
@@ -77,46 +77,59 @@ public class Launch {
 
 							CONF_PARAM = args[1];
 
-							SupervisorXmlObject t = XmlUtils.getInstance().xmlFile2Object(f);
-							
-							UDP_SERVER_PORT = t.getUdpPort();
-							
-							List<ThreadDescriptorObject> l = t.getThreadDescriptorLst();
-
-							for (ThreadDescriptorObject threadDescriptorObject : l) {
-
-								String confParam = threadDescriptorObject.getConfParam();
+							SupervisorXmlObject t = null;
+							try {
+								t = XmlUtils.getInstance().xmlFile2Object(f);
+								UDP_SERVER_PORT = t.getUdpPort();
 								
+								List<ThreadDescriptorObject> l = t.getThreadDescriptorLst();
 
-								File jarFile = new File(t.getJarPath());
+								for (ThreadDescriptorObject threadDescriptorObject : l) {
 
-								if(jarFile.exists() && jarFile.isFile()){
+									String confParam = threadDescriptorObject.getConfParam();
 
-									JAR_PATH = t.getJarPath();
-									try {
-										JAVA_HOME = Commons.getInstance().getJavaHome();
-									} catch (SentinelRuntimeException e) {
-										System.out.println(e.getMessage());
+									File jarFile = new File(t.getJarPath());
+
+									if(jarFile.exists() && jarFile.isFile()){
+
+										JAR_PATH = t.getJarPath();
+										try {
+											JAVA_HOME = Commons.getInstance().getJavaHome();
+										} catch (SentinelRuntimeException e) {
+											System.out.println(e.getMessage());
+										}
+										Thread pThread = new LauncherExtProcessThread(new String[]{JAVA_HOME!=null ? JAVA_HOME+"java":"java","-jar", JAR_PATH, "d",confParam});
+										pThread.start();
+
+									}else{
+										System.out.println("Jar file "+t.getJarPath()+" was not found.");
+										System.exit(0);
 									}
-									Thread pThread = new LauncherExtProcessThread(new String[]{JAVA_HOME!=null ? JAVA_HOME+"java":"java","-jar", JAR_PATH, "d",confParam});
-									pThread.start();
-
-								}else{
-									System.out.println("Jar file "+t.getJarPath()+" was not found.");
-									System.exit(0);
 								}
 
-
-
+								Thread procListenerThread = new SeUdpServer(t.getUdpPort());
+								procListenerThread.start();
+							} catch (SentinelRuntimeException e1) {
+								
+								System.err.println("Error trying to parse xml file ["+args[1]+"]. Detail: "+e1.getMessage());
 							}
-
-							Thread procListenerThread = new SeUdpServer(t.getUdpPort());
-							procListenerThread.start();
+							
+							
+							
+						}else{
+							System.out.println("Invalid file: "+args[1]);
+							System.exit(0);
 						}
 
+					}else{
+						System.out.println("Invalid mode.");
+						System.exit(0);
 					}
 
 
+				}else{
+					System.out.println("Invalid mode: "+args[0]);
+					System.exit(0);
 				}
 
 			}else if(args == null || args.length ==0){ //check if is interactive mode
@@ -125,7 +138,7 @@ public class Launch {
 				System.out.println("\n\n"+Constants.APP_NAME+" "+Constants.APP_VERSION+"\nCommand Line Interface (CLI)\nhttps://github.com/Scicrop/sentinel-extractor\n\n");
 
 
-				String clientUrl = null;
+				
 				File oFolder = null;
 				Scanner keyboard = new Scanner(System.in);
 
@@ -182,42 +195,37 @@ public class Launch {
 				}
 
 
-
-				
-
-
-				System.out.println("Enable verbose? [true]");
-				String sVerbose = keyboard.nextLine();
-				boolean verbose = true;
-				if(sVerbose.equals("true") || sVerbose.equals("false")){
-					verbose = Boolean.parseBoolean(sVerbose);
-				}
-
-				System.out.println("Enable log? [true]");
-				String sLog = keyboard.nextLine();
-				boolean log = true;
-				if(sLog == null || sLog.equals("")) log = true;
-				if(sLog.equals("true") || sLog.equals("false")){
-					log = Boolean.parseBoolean(sLog);
-				}
-
-				System.out.println("Type the log folder: [/var/log/sentinel/]");
-				String logFolder = keyboard.nextLine();
-				if(logFolder.equals("") && !logFolder.equals("")) logFolder = "/var/log/sentinel/";
-
-
-				System.out.println("How much time (millis) the supervisor will check the thread status: [1000]");
+				hist = "";
+				if(aHistory != null) hist =  "["+aHistory.getThreadCheckerSleep()+"]";
+				System.out.println("How much time (milliseconds) the downloader should wait for before kill a stalled connection? "+hist);
 				
 				String millis = keyboard.nextLine();
-				long threadCheckerSleep = 1000l;
-				if(millis != null || !millis.equals("")) threadCheckerSleep = Long.parseLong(millis);
+				long threadCheckerSleep = Constants.DEFAULT_THREAD_CHECKER_SLEEP;
+				
+				if(millis.equals("") && !hist.equals("")) threadCheckerSleep = aHistory.getThreadCheckerSleep();
+				else try {
+					threadCheckerSleep = Long.parseLong(millis);
+				} catch (NumberFormatException e) {
+					System.out.println("Invalid time. Using default: "+Constants.DEFAULT_THREAD_CHECKER_SLEEP);
+				}
 
-
-				System.out.println("How much tries will try the download? [5] ");
+				hist = "";
+				if(aHistory != null) hist =  "["+aHistory.getDownloadTriesLimit()+"]";
+				System.out.println("How much tries will try the download? "+hist);
 				String sDownload = keyboard.nextLine();
-				int downloadTriesLimit = 5;
-				if(sDownload != null || !sDownload.equals("")) downloadTriesLimit = Integer.parseInt(sDownload);
+				int downloadTriesLimit = Constants.DEFAULT_DOWNLOAD_TRIES_LIMIT;
+				
+				if(sDownload.equals("") && !hist.equals("")) downloadTriesLimit = aHistory.getDownloadTriesLimit();
+				else try {
+					downloadTriesLimit = Integer.parseInt(sDownload);
+				} catch (NumberFormatException e) {
+					System.out.println("Invalid try number. Using default: "+Constants.DEFAULT_DOWNLOAD_TRIES_LIMIT);
+				}
+				
+				
 
+				
+				
 
 //				System.out.println("UDP Port? [10020] ");
 //				String sUdpPort = keyboard.nextLine();
@@ -236,11 +244,11 @@ public class Launch {
 				aHistory.setPassword(password);
 				aHistory.setOutputFolder(outputFolder);
 				aHistory.setDownloadTriesLimit(downloadTriesLimit);
-				aHistory.setLog(log);
-				aHistory.setVerbose(verbose);
+				aHistory.setLog(false);
+				aHistory.setVerbose(true);
 				aHistory.setThreadCheckerSleep(threadCheckerSleep);
 				aHistory.setSentinel(sentinel);
-				aHistory.setLogFolder(logFolder);
+				aHistory.setLogFolder(null);
 				
 				ActionBuilder.getInstance().manualSwitcher(aHistory, searchType);
 
