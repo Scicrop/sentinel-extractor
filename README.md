@@ -19,6 +19,8 @@ Main advantages of Sentinel-Extractor software is are:
 
 ## How to use ##
 
+First of all, this software must be executed with Oracle Java JRE or OpenJDK JRE version >= 1.7
+
  - Interactive mode:
    - Use this mode to monitor de entire process of downloads of a given Open Search query.
   ```
