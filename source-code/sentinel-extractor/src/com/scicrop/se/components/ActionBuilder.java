@@ -3,6 +3,7 @@ package com.scicrop.se.components;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -208,7 +209,7 @@ public class ActionBuilder {
 			
 		} catch (SentinelRuntimeException e1) {
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1.getMessage());
-		}
+		} 
 	}
 
 	public void autoSearchDownload(ArgumentsHistory aHistory){
