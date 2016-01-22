@@ -20,6 +20,7 @@ Main advantages of Sentinel-Extractor software is are:
 ## How to use ##
 
  - Interactive mode:
+   - Use this mode to monitor de entire process of downloads of a given Open Search query.
   ```
   $java -jar se.jar
   ```
@@ -31,8 +32,10 @@ Main advantages of Sentinel-Extractor software is are:
      - How much time (milliseconds) the downloader should wait for before kill a stalled connection
      - How much tries will try the download
      - How to download:
-       - (1) Open Search Query 
-        - (2) Open Data Query (by UUID)
+       - (1) Open Search Query: 
+         - Example: https://scihub.copernicus.eu/dhus/search?q=footprint:%22Intersects(POLYGON((-4.53%2029.85,26.75%2029.85,26.75%2046.80,-4.53%2046.80,-4.53%2029.85)))%22&$filter=substringof(20151221T164815_,Name)
+        - (2) Open Data Query (by UUID):
+          - Example: 18f7993d-eae1-4f7f-9d81-d7cf19c18378 
         - (3) Resume interrupted downloads
       
  - No-interactive mode:
