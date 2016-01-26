@@ -54,15 +54,19 @@ public class XmlUtils {
 			threadDescLst  = new ArrayList<ThreadDescriptorObject>();
 			Document doc = xmlFile2xmlDocument(fXmlFile);
 			NodeList nl = doc.getElementsByTagName("supervisor");
-			jarPath = nl.item(0).getAttributes().getNamedItem("jarPath").getNodeValue();
-			udpPort = Integer.parseInt(nl.item(0).getAttributes().getNamedItem("jarPath").getNodeValue());
-
-			threadDescLst = getElementsByDocAndTagName(doc, "thread");
+			Node n = nl.item(0).getAttributes().getNamedItem("jarpath");
+			Node n2 = nl.item(0).getAttributes().getNamedItem("udp_server_port");
+			if(n != null && n2 != null) {
+				jarPath = n.getNodeValue();
+				udpPort = Integer.parseInt(n2.getNodeValue());
+				threadDescLst = getElementsByDocAndTagName(doc, "thread");
+				
+				ret = new ThreadDescriptorLstObject(threadDescLst,jarPath,udpPort);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		ret = new ThreadDescriptorLstObject(threadDescLst,jarPath,udpPort);
 
 		return ret;
 	}
@@ -104,6 +108,9 @@ public class XmlUtils {
 			expr = xpath.compile("/supervisor/@udp_server_port");
 			ret.setUdpPort(Integer.parseInt(String.valueOf(expr.evaluate(d, XPathConstants.STRING))));
 			ret.setThreadDescriptorLstObject(threadDescLst(f));
+			if(ret.getThreadDescriptorLstObject() == null){
+				throw new SentinelRuntimeException("The jarPath or udpPortServer was not specified in "+f.getAbsolutePath());
+			}
 
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			throw new SentinelRuntimeException(e);

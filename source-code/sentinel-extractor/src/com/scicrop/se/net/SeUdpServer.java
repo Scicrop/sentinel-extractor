@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.scicrop.se.commons.dataobjects.Payload;
 import com.scicrop.se.commons.net.NetUtils;
+import com.scicrop.se.commons.utils.SentinelRuntimeException;
 import com.scicrop.se.runtime.Launch;
 import com.scicrop.se.threads.SupervisorThreadChecker;
 
@@ -31,35 +33,47 @@ public class SeUdpServer extends Thread{
 		try {
 			serverSocket = new DatagramSocket(port);
 			byte[] receiveData = new byte[1024];
+			int counter = 0;
+			long epochT0 = new Date().getTime();
+			while(serverSocket.isBound())
+			{
 
-			while(true)                {
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				serverSocket.receive(receivePacket);
 				String sentence = new String( receivePacket.getData());
 
 				System.out.println("RECEIVED: " + sentence);
-//				InetAddress IPAddress = receivePacket.getAddress();
-//				int port = receivePacket.getPort();
+				//				InetAddress IPAddress = receivePacket.getAddress();
+				//				int port = receivePacket.getPort();
 
 				try{
+					long epochT1 = new Date().getTime();
 					Payload payload = NetUtils.getInstance().handleProtocol(sentence);
 					clientsMap.put(payload.getConfParam(), payload);
-					Thread t = new SupervisorThreadChecker(clientsMap, Launch.JAR_PATH);
-					t.start();
+					if(epochT1 - epochT0 > 10000) { 
+						
+						Thread t = new SupervisorThreadChecker(clientsMap, Launch.JAR_PATH);
+						t.start();
+						
+						epochT0 = epochT1;
+						System.out.println("SupervisorThreadChecker: "+counter++);
+					}
 				}catch(Exception e){
 					e.printStackTrace();
 				}
 				for (int i = 0; i < receiveData.length; i++) {
 					receiveData[i] = 0;
 				}
-				
+
 				receivePacket = null;
 				sentence = null;
 			}
 		} catch (SocketException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			System.exit(0);
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			System.exit(0);
 		}
 
 	}

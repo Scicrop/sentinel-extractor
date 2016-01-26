@@ -85,9 +85,9 @@ public class Commons {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}catch (NumberFormatException nfe){
-			
+
 			System.out.println("Error trying to convert "+prop.getProperty("size")+" to Long. ["+source+"]");
-			
+
 		} finally {
 			if (input != null) {
 				try {
@@ -131,7 +131,7 @@ public class Commons {
 
 	}
 
-	
+
 
 
 
@@ -201,7 +201,7 @@ public class Commons {
 
 
 	public void writeArgumentsHistoryPropertyFile(ArgumentsHistory aHistory) {
-		
+
 		/**
 		 * user=guest
 			password=guest
@@ -215,8 +215,8 @@ public class Commons {
 			threadcheckersleep=60000
 			downloadtrieslimit=100
 		 */
-		
-		
+
+
 		String userDir = System.getProperty("user.dir") + "/";
 		Properties prop = new Properties();
 		OutputStream output = null;
@@ -235,7 +235,7 @@ public class Commons {
 			prop.setProperty("outputfolder", aHistory.getOutputFolder());
 			prop.setProperty("clienturl", aHistory.getClientUrl());
 			prop.setProperty("sentinel", aHistory.getSentinel());
-			
+
 			prop.setProperty("threadcheckersleep", String.valueOf(aHistory.getThreadCheckerSleep()));
 			prop.setProperty("downloadtrieslimit", String.valueOf(aHistory.getDownloadTriesLimit()));
 
@@ -258,34 +258,34 @@ public class Commons {
 
 
 	public ArgumentsHistory readArgumentsHistoryPropertyFile() {
-		
+
 		String userDir = System.getProperty("user.dir") + "/";
 		String filePath = userDir + ".ahistory" + ".properties";
-		
+
 		return readArgumentsHistoryPropertyFile(filePath);
 	}
 
 	public double getJavaHomeVersion () {
-	    String version = System.getProperty("java.version");
-	    int pos = version.indexOf('.');
-	    pos = version.indexOf('.', pos+1);
-	    return Double.parseDouble (version.substring (0, pos));
+		String version = System.getProperty("java.version");
+		int pos = version.indexOf('.');
+		pos = version.indexOf('.', pos+1);
+		return Double.parseDouble (version.substring (0, pos));
 	}
 	public String getJavaHome() throws SentinelRuntimeException {
 		String ret = null;
-	    ret = System.getenv("JAVA_HOME");
-	    
-	    File f = new File(ret);
-	    
-	    if(f != null && f.exists() && f.isDirectory()){
-	    	if(ret.charAt(ret.length()-1) != '/') ret = ret + "/";
-	    } else throw new SentinelRuntimeException("JAVA_HOME is not a valid directory: "+ret);
-	    
-	    
-	    
-	    return ret;
+		ret = System.getenv("JAVA_HOME");
+		if(ret != null){
+			File f = new File(ret);
+
+			if(f != null && f.exists() && f.isDirectory()){
+				if(ret.charAt(ret.length()-1) != '/') ret = ret + "/";
+			} else throw new SentinelRuntimeException("JAVA_HOME is not a valid directory: "+ret);
+		} else throw new SentinelRuntimeException("JAVA_HOME is not defined.");
+
+
+		return ret;
 	}
-	
+
 	public ArgumentsHistory readArgumentsHistoryPropertyFile(String filePath) {
 		ArgumentsHistory ret = null;
 
@@ -300,35 +300,34 @@ public class Commons {
 
 			long threadcheckersleep = 1000l;
 			int downloadtrieslimit = 5;
-			
+
 			try{
 				threadcheckersleep = Long.parseLong(prop.getProperty("threadcheckersleep"));
 			}catch(NumberFormatException nfe){
 				System.out.println("Failed trying to read threadcheckersleep property from: "+filePath);
 			}
-			
+
 			try{
 				downloadtrieslimit = Integer.parseInt(prop.getProperty("downloadtrieslimit"));
 			}catch(NumberFormatException nfe){
-				
+
 				System.out.println("Failed trying to read downloadtrieslimit property from: "+filePath);
 			}
-			
-			
+
 			ret = new ArgumentsHistory(prop.getProperty("user"), 
 					prop.getProperty("outputfolder"), 
 					prop.getProperty("sentinel"), 
 					prop.getProperty("clienturl"), 
 					prop.getProperty("socketport"),
 					prop.getProperty("password"), 
-					Boolean.getBoolean(prop.getProperty("verbose")), 
-					Boolean.getBoolean(prop.getProperty("log")), 
+					Boolean.valueOf(prop.getProperty("verbose").trim()), 
+					Boolean.valueOf(prop.getProperty("log").trim()), 
 					prop.getProperty("logfolder"),
 					threadcheckersleep,
 					downloadtrieslimit
-				);
+					);
 
-
+ 
 		} catch (FileNotFoundException ex) {
 
 		} catch (IOException ex) {
@@ -344,5 +343,5 @@ public class Commons {
 		}
 		return ret;
 	}
-	
+
 }
