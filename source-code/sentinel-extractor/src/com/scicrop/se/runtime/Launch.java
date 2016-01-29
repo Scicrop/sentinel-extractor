@@ -1,6 +1,8 @@
 package com.scicrop.se.runtime;
 
 import java.io.File;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -29,8 +31,8 @@ public class Launch {
 	public static int UDP_SERVER_PORT = -1;
 	public static String JAVA_HOME = null;
 	
-	public static void main(String[] args) {
-		
+	public static void main(String[] args) throws UnknownHostException {
+
 		if(Commons.getInstance().getJavaHomeVersion() >= Constants.JAVA_VERSION_COMPLIANCE){
 
 			if(args!=null && args.length == 2){ //check if is non-interactive mode syntax

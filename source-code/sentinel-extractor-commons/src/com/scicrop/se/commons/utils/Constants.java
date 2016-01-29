@@ -5,7 +5,8 @@ public class Constants {
 	public static final String HTTP_METHOD_POST = "POST";
 	public static final String HTTP_METHOD_GET = "GET";
 	public static final String HTTP_METHOD_DELETE = "DELETE";
-
+	public static final String USER_AGENT = "Mozilla/5.0";
+	
 	public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
 	public static final String HTTP_HEADER_ACCEPT = "Accept";
 
@@ -26,13 +27,9 @@ public class Constants {
 	public static final double JAVA_VERSION_COMPLIANCE = 1.7d;
 	public static final long DEFAULT_THREAD_CHECKER_SLEEP = 30000l;
 	public static final int DEFAULT_DOWNLOAD_TRIES_LIMIT = 5;
+	public static final String FEEDBACK_URL = "https://scicrop.com/sentinel-extractor/feedback.php";
+	public static final String MYIP_URL = "https://scicrop.com/sentinel-extractor/myip.php";
 	
-	
-
-
-
-
-
 	public static String user = "guest";
 	public static String password = "guest";
 	

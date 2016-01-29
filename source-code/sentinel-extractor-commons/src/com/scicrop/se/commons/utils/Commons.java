@@ -1,6 +1,7 @@
 package com.scicrop.se.commons.utils;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,9 +10,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Properties;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
@@ -27,6 +33,105 @@ public class Commons {
 		return INSTANCE;
 	}
 
+	private String transformParameters(Map<String,String> map){
+		String ret = "";
+		if(map!= null && map.size() > 0){
+			ret = "?";
+			for (Map.Entry<String, String> entry : map.entrySet())
+			{
+				ret += entry.getKey() + "=" + entry.getValue() + "&";
+			}
+			ret = ret.substring(0,ret.length()-2); 
+		}
+		return ret;
+	}
+	
+	// HTTP GET request
+	public void sendGet(String url, Map<String,String> map) throws Exception {
+
+		if(map != null && map.size() > 0){
+			url += transformParameters(map);
+		}
+		
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		// optional default is GET
+		con.setRequestMethod("GET");
+
+		//add request header
+		con.setRequestProperty("User-Agent", Constants.USER_AGENT);
+
+		int responseCode = con.getResponseCode();
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		//print result
+		System.out.println(response.toString());
+	}
+	
+	// HTTP POST request
+	public void sendPost(String url, Map<String,String> map) throws Exception {
+
+		URL obj = new URL(url);
+		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+		//add reuqest header
+		con.setRequestMethod("POST");
+		con.setRequestProperty("User-Agent", Constants.USER_AGENT);
+		con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+
+		String urlParameters = "";
+		
+		if(map != null && map.size() > 0){
+			urlParameters = transformParameters(map);
+		}
+		
+		
+		// Send post request
+		con.setDoOutput(true);
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		wr.writeBytes(urlParameters);
+		wr.flush();
+		wr.close();
+
+		int responseCode = con.getResponseCode();
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+		
+		//print result
+		System.out.println(response.toString());
+
+	}
+	
+	public String getIpByScicropUrl() throws SentinelRuntimeException{
+		String ret= "";
+		try {
+			URL whatismyip = new URL(Constants.MYIP_URL);
+		    BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+		    ret = in.readLine();
+		} catch (Exception e) {
+			throw new SentinelRuntimeException("Cannot reach "+Constants.MYIP_URL+".");
+		}
+	    
+	    return ret;
+	}
 
 	public void writeEntryFilePropertyFile(EntryFileProperty entryFileData, String folder){
 
