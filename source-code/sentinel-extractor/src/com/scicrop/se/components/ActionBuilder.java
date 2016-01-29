@@ -2,6 +2,7 @@ package com.scicrop.se.components;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ActionBuilder {
 			if(clientUrl.equals("") && !hist.equals("")) clientUrl = aHistory.getClientUrl();
 
 			aHistory.setClientUrl(clientUrl);
-			
+
 			Commons.getInstance().writeArgumentsHistoryPropertyFile(aHistory);
 
 			processClientUrl(aHistory);
@@ -86,7 +87,7 @@ public class ActionBuilder {
 			try {
 
 				File oFolder = new File(aHistory.getOutputFolder());
-				
+
 				String[] content = oFolder.list(new FilenameFilter() {
 
 					@Override
@@ -152,7 +153,7 @@ public class ActionBuilder {
 
 			break;
 		}
-		
+
 		keyboard.close();
 	}
 
@@ -161,8 +162,7 @@ public class ActionBuilder {
 		try {
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "Processing ...");
 			feed = OpenSearchHelper.getInstance().getFeed(Constants.COPERNICUS_HOST, "", aHistory);
-			
-			String ip = Commons.getInstance().getIpByScicropUrl();
+
 			QName trQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "totalResults");
 			QName ippQn = new QName("http://a9.com/-/spec/opensearch/1.1/", "itemsPerPage");
 			int tr = Integer.parseInt(feed.getExtension(trQn).getText());
@@ -196,24 +196,26 @@ public class ActionBuilder {
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "UUID LIST: \n");
 
 			String allUuids = "";
-			
+
 			for(int e = 0; e < uuidLst.size(); e++){
 				allUuids += uuidLst.get(e).toString() + ",";
 				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', e+")\t"+uuidLst.get(e));
 			}
-			Map<String,String> mapUUID = new HashMap<String,String>();
-			allUuids = allUuids.substring(0,allUuids.length()-2);
-			mapUUID.put("action", "saveInfo");
-			mapUUID.put("uuid", allUuids);
-			mapUUID.put("ip", ip);
-			mapUUID.put("user", aHistory.getUser());
+			if(uuidLst.size() > 0){
+				Map<String,String> map = new HashMap<String,String>();
+				allUuids = allUuids.substring(0,allUuids.length()-2);
 
-			try {
-				Commons.getInstance().sendPost("https://scicrop.com/sentinel-extractor/feedback.php", mapUUID);
-			} catch (Exception e1) {					
-				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1+")\t"+"Error trying send all uuids as feedback to scicrop server");
+				map.put("action", "saveInfo");
+				map.put("uuid", allUuids);
+				map.put("user", aHistory.getUser());
+				map.put("clienturl", aHistory.getClientUrl());
+				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', allUuids);
+				try {
+					Commons.getInstance().sendPost("https://scicrop.com/sentinel-extractor/feedback.php", map);
+				} catch (Exception e1) {					
+					LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1+")\t"+"Error trying send all uuids as feedback to scicrop server");
+				}
 			}
-			
 			for(int e = 0; e < uuidLst.size(); e++){
 				try {
 					OpenDataHelper.getInstance().getEdmByUUID(uuidLst.get(e), aHistory);
@@ -222,7 +224,7 @@ public class ActionBuilder {
 				}
 			}
 
-			
+
 		} catch (SentinelRuntimeException e1) {
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1.getMessage());
 		} 

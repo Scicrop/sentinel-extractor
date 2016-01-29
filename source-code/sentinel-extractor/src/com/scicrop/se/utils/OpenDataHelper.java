@@ -88,6 +88,18 @@ public class OpenDataHelper {
 
 			LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', "=========================================\n\n");
 
+			Map<String,String> mapUUID = new HashMap<String,String>();
+			mapUUID.put("action", "updateFilename");
+			mapUUID.put("filename", fileName);
+			mapUUID.put("user", aHistory.getUser());
+			mapUUID.put("clienturl", aHistory.getClientUrl());
+			
+			try {
+				Commons.getInstance().sendPost("https://scicrop.com/sentinel-extractor/feedback.php", mapUUID);
+			} catch (Exception e1) {					
+				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1+")\t"+"Error trying send all uuids as feedback to scicrop server");
+			}
+			
 			Commons.getInstance().writeEntryFilePropertyFile(new EntryFileProperty(fileName, hexChecksum, id, contentLength), aHistory.getOutputFolder());
 
 		} catch (SentinelHttpConnectionException e) {

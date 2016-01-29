@@ -1,7 +1,6 @@
 package com.scicrop.se.commons.utils;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,14 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import com.scicrop.se.commons.dataobjects.ArgumentsHistory;
 import com.scicrop.se.commons.dataobjects.EntryFileProperty;
@@ -36,12 +35,12 @@ public class Commons {
 	private String transformParameters(Map<String,String> map){
 		String ret = "";
 		if(map!= null && map.size() > 0){
-			ret = "?";
+			ret = "";
 			for (Map.Entry<String, String> entry : map.entrySet())
 			{
 				ret += entry.getKey() + "=" + entry.getValue() + "&";
 			}
-			ret = ret.substring(0,ret.length()-2); 
+			ret = ret.substring(0,ret.length()-1); 
 		}
 		return ret;
 	}
@@ -79,45 +78,21 @@ public class Commons {
 	}
 	
 	// HTTP POST request
-	public void sendPost(String url, Map<String,String> map) throws Exception {
+	public void sendPost(String url, Map<String,String> map) throws IOException  {
+		URL uurl = new URL(url);
+	    URLConnection conn = uurl.openConnection();
+	    conn.setDoOutput(true);
+	    OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
 
-		URL obj = new URL(url);
-		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-
-		//add reuqest header
-		con.setRequestMethod("POST");
-		con.setRequestProperty("User-Agent", Constants.USER_AGENT);
-		con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-		String urlParameters = "";
-		
-		if(map != null && map.size() > 0){
-			urlParameters = transformParameters(map);
-		}
-		
-		
-		// Send post request
-		con.setDoOutput(true);
-		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-		wr.writeBytes(urlParameters);
-		wr.flush();
-		wr.close();
-
-		int responseCode = con.getResponseCode();
-
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-		
-		//print result
-		System.out.println(response.toString());
-
+	    writer.write(Commons.getInstance().transformParameters(map));
+	    writer.flush();
+	    String line;
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	    while ((line = reader.readLine()) != null) {
+	      System.out.println(line);
+	    }
+	    writer.close();
+	    reader.close();
 	}
 	
 	public String getIpByScicropUrl() throws SentinelRuntimeException{

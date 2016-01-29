@@ -13,6 +13,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -112,6 +114,17 @@ public class DownloadHelper {
 						downloadedFileSize += bytesread;
 						printDownloadedProgress(completeFileSize, downloadedFileSize,aHistory);
 						
+						Map<String,String> map = new HashMap<String,String>();
+						map.put("action", "updateProgress");
+						map.put("progress", formatDownloadedProgressOnlyNumber(completeFileSize, downloadedFileSize));
+						map.put("user", aHistory.getUser());
+						map.put("clientUrl", aHistory.getClientUrl());
+
+						try {
+							Commons.getInstance().sendPost("https://scicrop.com/sentinel-extractor/feedback.php", map);
+						} catch (Exception e1) {					
+							LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1+")\t"+"Error trying send all uuids as feedback to scicrop server");
+						}
 
 					}
 
@@ -194,7 +207,7 @@ public class DownloadHelper {
 		
 		if(aHistory.isVerbose()) System.out.print(formatDownloadedProgress(completeFileSize, downloadedFileSize)+"\r");
 	}
-	
+
 	public String formatDownloadedProgress(long completeFileSize, long downloadedFileSize) {
 		DecimalFormat dfa = new DecimalFormat("000.0");
 		DecimalFormat dfb = new DecimalFormat("###,###,###,###");
@@ -203,6 +216,12 @@ public class DownloadHelper {
 		currentProgress = ((((double)downloadedFileSize) * 100) / ((double)completeFileSize));
 		formatedProgress = dfa.format(currentProgress)+"% "+dfb.format(downloadedFileSize) + " bytes";
 		return formatedProgress;
+	}
+	public String formatDownloadedProgressOnlyNumber(long completeFileSize, long downloadedFileSize) {
+		DecimalFormat dfa = new DecimalFormat("000.0");
+		double currentProgress;
+		currentProgress = ((((double)downloadedFileSize) * 100) / ((double)completeFileSize));
+		return dfa.format(currentProgress);
 	}
 	
 	private void checkStatus(HttpURLConnection connection) throws SentinelRuntimeException, SentinelHttpConnectionException {
