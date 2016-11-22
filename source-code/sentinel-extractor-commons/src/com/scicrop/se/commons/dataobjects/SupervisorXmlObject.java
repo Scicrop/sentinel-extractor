@@ -3,11 +3,20 @@ package com.scicrop.se.commons.dataobjects;
 import java.util.List;
 
 public class SupervisorXmlObject {
+	
 	private ThreadDescriptorLstObject threadDescriptorLstObject;
 	private String jarPath;
 	private int udpPort;
+	private String notifier;
 	
 	
+	
+	public String getNotifier() {
+		return notifier;
+	}
+	public void setNotifier(String notifier) {
+		this.notifier = notifier;
+	}
 	public SupervisorXmlObject(){}
 	public SupervisorXmlObject(ThreadDescriptorLstObject threadDescriptorLstObject, String jarPath, int udpPort) {
 		super();

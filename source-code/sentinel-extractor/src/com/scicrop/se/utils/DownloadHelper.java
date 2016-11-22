@@ -120,11 +120,7 @@ public class DownloadHelper {
 						map.put("user", aHistory.getUser());
 						map.put("clientUrl", aHistory.getClientUrl());
 
-						try {
-							Commons.getInstance().sendPost("https://scicrop.com/sentinel-extractor/feedback.php", map);
-						} catch (Exception e1) {					
-							LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1+")\t"+"Error trying send all uuids as feedback to scicrop server");
-						}
+						
 
 					}
 

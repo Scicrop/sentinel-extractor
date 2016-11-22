@@ -11,8 +11,6 @@ public class NetUtils {
 
 	private static NetUtils INSTANCE = null;
 
-	private static Log log = LogFactory.getLog(NetUtils.class);
-
 	public static NetUtils getInstance(){
 		if(INSTANCE == null) INSTANCE = new NetUtils();
 		return INSTANCE;

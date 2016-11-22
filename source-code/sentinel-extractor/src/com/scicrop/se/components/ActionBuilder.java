@@ -210,11 +210,7 @@ public class ActionBuilder {
 				map.put("user", aHistory.getUser());
 				map.put("clienturl", aHistory.getClientUrl());
 				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'i', allUuids);
-				try {
-					Commons.getInstance().sendPost("https://scicrop.com/sentinel-extractor/feedback.php", map);
-				} catch (Exception e1) {					
-					LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1+")\t"+"Error trying send all uuids as feedback to scicrop server");
-				}
+				
 			}
 			for(int e = 0; e < uuidLst.size(); e++){
 				try {

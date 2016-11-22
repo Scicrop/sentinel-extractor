@@ -111,7 +111,7 @@ public class Launch {
 									}
 								}
 
-								Thread procListenerThread = new SeUdpServer(t.getUdpPort());
+								Thread procListenerThread = new SeUdpServer(t.getUdpPort(), t.getNotifier());
 								procListenerThread.start();
 							} catch (SentinelRuntimeException e1) {
 								

@@ -23,15 +23,15 @@ public class Constants {
 	public static final int BUFFER_SIZE = 8192;
 	
 	public static final String APP_NAME = "sentinel-extractor";
-	public static final String APP_VERSION = "0.3.0";
+	public static final String APP_VERSION = "0.3.1";
 	public static final double JAVA_VERSION_COMPLIANCE = 1.7d;
 	public static final long DEFAULT_THREAD_CHECKER_SLEEP = 30000l;
 	public static final int DEFAULT_DOWNLOAD_TRIES_LIMIT = 5;
-	public static final String FEEDBACK_URL = "https://scicrop.com/sentinel-extractor/feedback.php";
-	public static final String MYIP_URL = "https://scicrop.com/sentinel-extractor/myip.php";
+	public static final String MYIP_URL = "";
 	
 	public static String user = "guest";
 	public static String password = "guest";
+	public static String UTF8 = "UTF-8";
 	
 
 }

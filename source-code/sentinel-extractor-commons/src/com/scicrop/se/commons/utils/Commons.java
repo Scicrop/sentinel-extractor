@@ -56,7 +56,7 @@ public class Commons {
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
 		// optional default is GET
-		con.setRequestMethod("GET");
+		con.setRequestMethod(Constants.HTTP_METHOD_GET);
 
 		//add request header
 		con.setRequestProperty("User-Agent", Constants.USER_AGENT);
@@ -82,6 +82,7 @@ public class Commons {
 		URL uurl = new URL(url);
 	    URLConnection conn = uurl.openConnection();
 	    conn.setDoOutput(true);
+	    
 	    OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
 
 	    writer.write(Commons.getInstance().transformParameters(map));
@@ -95,7 +96,7 @@ public class Commons {
 	    reader.close();
 	}
 	
-	public String getIpByScicropUrl() throws SentinelRuntimeException{
+	public String getIpByUrl() throws SentinelRuntimeException{
 		String ret= "";
 		try {
 			URL whatismyip = new URL(Constants.MYIP_URL);
@@ -313,7 +314,7 @@ public class Commons {
 			// set the properties value
 			prop.setProperty("user", aHistory.getUser());
 			prop.setProperty("outputfolder", aHistory.getOutputFolder());
-			prop.setProperty("clienturl", aHistory.getClientUrl());
+			prop.setProperty("clienturl", null == aHistory.getClientUrl() ? "" : aHistory.getClientUrl() );
 			prop.setProperty("sentinel", aHistory.getSentinel());
 
 			prop.setProperty("threadcheckersleep", String.valueOf(aHistory.getThreadCheckerSleep()));
@@ -400,8 +401,8 @@ public class Commons {
 					prop.getProperty("clienturl"), 
 					prop.getProperty("socketport"),
 					prop.getProperty("password"), 
-					Boolean.valueOf(prop.getProperty("verbose").trim()), 
-					Boolean.valueOf(prop.getProperty("log").trim()), 
+					Boolean.valueOf(null == prop.getProperty("verbose") ? "no" : prop.getProperty("verbose").trim()), 
+					Boolean.valueOf(null == prop.getProperty("log") ? "yes" : prop.getProperty("log").trim()), 
 					prop.getProperty("logfolder"),
 					threadcheckersleep,
 					downloadtrieslimit
@@ -409,7 +410,13 @@ public class Commons {
 
  
 		} catch (FileNotFoundException ex) {
-
+			
+		} catch (NullPointerException ex) {
+			
+			System.err.println("Invalid "+filePath+" file. Delete or fix it and try again.");
+			ex.printStackTrace();
+			System.exit(-1);
+			
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {

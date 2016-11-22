@@ -107,6 +107,8 @@ public class XmlUtils {
 			ret.setJarPath(String.valueOf(expr.evaluate(d, XPathConstants.STRING)));
 			expr = xpath.compile("/supervisor/@udp_server_port");
 			ret.setUdpPort(Integer.parseInt(String.valueOf(expr.evaluate(d, XPathConstants.STRING))));
+			expr = xpath.compile("/supervisor/@notifier");
+			ret.setNotifier(String.valueOf(expr.evaluate(d, XPathConstants.STRING)));
 			ret.setThreadDescriptorLstObject(threadDescLst(f));
 			if(ret.getThreadDescriptorLstObject() == null){
 				throw new SentinelRuntimeException("The jarPath or udpPortServer was not specified in "+f.getAbsolutePath());

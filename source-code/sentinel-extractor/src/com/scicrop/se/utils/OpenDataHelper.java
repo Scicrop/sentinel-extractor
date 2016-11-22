@@ -94,11 +94,6 @@ public class OpenDataHelper {
 			mapUUID.put("user", aHistory.getUser());
 			mapUUID.put("clienturl", aHistory.getClientUrl());
 			
-			try {
-				Commons.getInstance().sendPost("https://scicrop.com/sentinel-extractor/feedback.php", mapUUID);
-			} catch (Exception e1) {					
-				LogHelper.getInstance().handleVerboseLog(aHistory.isVerbose(), aHistory.isLog(), log, 'e', e1+")\t"+"Error trying send all uuids as feedback to scicrop server");
-			}
 			
 			Commons.getInstance().writeEntryFilePropertyFile(new EntryFileProperty(fileName, hexChecksum, id, contentLength), aHistory.getOutputFolder());
 
