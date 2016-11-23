@@ -23,7 +23,7 @@ public class Constants {
 	public static final int BUFFER_SIZE = 8192;
 	
 	public static final String APP_NAME = "sentinel-extractor";
-	public static final String APP_VERSION = "0.3.1";
+	public static final String APP_VERSION = "0.3.2";
 	public static final double JAVA_VERSION_COMPLIANCE = 1.7d;
 	public static final long DEFAULT_THREAD_CHECKER_SLEEP = 30000l;
 	public static final int DEFAULT_DOWNLOAD_TRIES_LIMIT = 5;
