@@ -82,6 +82,7 @@ First of all, this software must be executed with Oracle Java JRE or OpenJDK JRE
     - After you have those configuration files in disk, you can choose between 2 modes:
      - **Supervisor Mode:** ALL threads and ONE supervisor checking each thread
      
+     
      ```
      $ java -jar scicrop-sentinel-extractor.jar s supervisor-file.xml
      ```
