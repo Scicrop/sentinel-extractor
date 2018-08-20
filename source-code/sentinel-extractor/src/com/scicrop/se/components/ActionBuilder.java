@@ -184,11 +184,14 @@ public class ActionBuilder {
 
 					//int notUniqueCounter = 0;
 
+					System.out.println("======> "+feed.getUpdated());
+					System.out.println("======> "+entries.size());
+					
 					for (Entry entry : entries) {
 						if(!uuidLst.contains(entry.getId().toString())) uuidLst.add(entry.getId().toString());
 					}
 				}catch (Exception e){
-
+					e.printStackTrace();
 				}
 
 			}

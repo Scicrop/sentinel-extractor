@@ -23,6 +23,7 @@ import com.scicrop.se.commons.utils.SentinelRuntimeException;
 import com.scicrop.se.components.ActionBuilder;
 import com.scicrop.se.runtime.Launch;
 
+
 public class OpenSearchHelper {
 
 	private OpenSearchHelper(){}
@@ -60,26 +61,23 @@ public class OpenSearchHelper {
 
 			String clientUrl = aHistory.getClientUrl();
 
-			clientUrl = clientUrl + aHistory.getSentinel()+compl;
+			
 
 			String init = clientUrl.substring(0, end);
 			String last  = clientUrl.substring(end);
-
-
-
+			
 			try {
-				clientUrl = init + URLEncoder.encode(last, "UTF-8");
+				clientUrl = init + URLEncoder.encode(last, "UTF-8")+compl;	
 			} catch (UnsupportedEncodingException e) {
 				throw new SentinelRuntimeException(e);
 			}
-
-
 
 			ClientResponse resp = client.get(clientUrl);
 						
 			if (resp.getType() == ResponseType.SUCCESS) {
 				Document<Feed> doc = resp.getDocument(); 
 				ret = doc.getRoot();			
+				
 			} else {
 				throw new SentinelRuntimeException("Wrong response from an OpenSearch query: "+resp.getType()+" ["+resp.getStatus()+"]");
 			}	
